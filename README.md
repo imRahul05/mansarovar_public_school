@@ -1,7 +1,7 @@
 # Mansarovar Public School Website
 
 <div align="center">
-  <img src="src/assets/images/school-logo.png" alt="Mansarovar Public School Logo" width="200" />
+  <img src="src/assets/images/logo.jpeg" alt="Mansarovar Public School Logo" width="200" />
   <h3>Excellence in Education Since 1995</h3>
   <p>A modern, full-stack web application for Mansarovar Public School</p>
 </div>
