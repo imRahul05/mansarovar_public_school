@@ -61,9 +61,9 @@ const Login = () => {
         <div className="text-center">
           <Link to="/">
             <img 
-              src="/src/assets/images/logo.png" 
+              src="/src/assets/images/logo.jpeg" 
               alt="Mansarovar Public School" 
-              className="mx-auto h-16 w-auto"
+              className="mx-auto h-16 w-auto rounded-md"
             />
           </Link>
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Sign in to your account</h2>

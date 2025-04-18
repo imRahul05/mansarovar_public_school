@@ -83,9 +83,9 @@ const Header = () => {
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
               <img 
-                src="/src/assets/images/logo.png" 
+                src="/src/assets/images/logo.jpeg" 
                 alt="Mansarovar Public School" 
-                className="h-12 w-auto"
+                className="h-12 w-auto rounded-xl"
               />
               <div className="ml-3">
                 <div className="text-lg font-bold text-blue-900">Mansarovar</div>
