@@ -1,12 +1,13 @@
 import React from 'react';
 import NoticeItem from './NoticeItem';
 
-const NoticeList = ({ notices, loading, filter, categories }) => {
+const NoticeList = ({ notices = [], loading, filter, categories = [] }) => {
   const filteredNotices = filter === 'all' ? 
     notices : 
-    notices.filter(notice => notice.category === filter);
+    (notices && Array.isArray(notices) ? notices.filter(notice => notice.category === filter) : []);
 
-  const categoryTitle = filter === 'all' ? 'All Notices' : categories.find(c => c.id === filter)?.name + ' Notices';
+  const categoryTitle = filter === 'all' ? 'All Notices' : 
+    (categories && categories.find(c => c.id === filter)?.name || 'Category') + ' Notices';
 
   return (
     <section className="py-16">
