@@ -17,7 +17,6 @@ const Events = () => {
         setEvents(response.data.events);
       } catch (error) {
         console.error('Error fetching events:', error);
-        // Sample data in case API fails
         setEvents(eventData);
       } finally {
         setLoading(false);

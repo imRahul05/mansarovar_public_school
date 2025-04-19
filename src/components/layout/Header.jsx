@@ -1,6 +1,7 @@
 import { useState, useContext } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import AuthContext from '../../contexts/AuthContext';
+import logo  from '../../assets/images/logo.jpeg'
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { currentUser, logout } = useContext(AuthContext);
@@ -83,7 +84,7 @@ const Header = () => {
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
               <img 
-                src="/src/assets/images/logo.jpeg" 
+                src={logo}
                 alt="Mansarovar Public School" 
                 className="h-12 w-auto rounded-xl"
               />

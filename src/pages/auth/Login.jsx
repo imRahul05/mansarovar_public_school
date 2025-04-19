@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-
+import logo from '../../assets/images/logo.jpeg'
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -61,7 +61,7 @@ const Login = () => {
         <div className="text-center">
           <Link to="/">
             <img 
-              src="/src/assets/images/logo.jpeg" 
+              src={logo}
               alt="Mansarovar Public School" 
               className="mx-auto h-16 w-auto rounded-md"
             />
