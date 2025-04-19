@@ -22,7 +22,6 @@ const Login = () => {
   }, [currentUser, navigate]);
 
   const getRedirectPath = (role) => {
-    // Check if there's a redirect path in location state (user was directed to login)
     const from = location.state?.from?.pathname;
     if (from) return from;
     

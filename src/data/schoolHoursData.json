@@ -1,0 +1,30 @@
+{
+    "title": "School Hours",
+    "sections": [
+      {
+        "title": "Office Hours",
+        "items": [
+          { "label": "Monday to Friday", "time": "8:00 AM - 4:00 PM" },
+          { "label": "Saturday", "time": "9:00 AM - 1:00 PM" },
+          { "label": "Sunday", "time": "Closed" }
+        ]
+      },
+      {
+        "title": "Class Hours",
+        "items": [
+          { "label": "Pre-Primary (Nursery to KG)", "time": "8:30 AM - 12:30 PM" },
+          { "label": "Primary (Classes 1-5)", "time": "8:00 AM - 2:00 PM" },
+          { "label": "Secondary (Classes 6-10)", "time": "8:00 AM - 3:00 PM" }
+        ]
+      },
+      {
+        "title": "Visiting Hours for Parents",
+        "items": [
+          { "label": "Principal", "time": "Monday to Friday, 3:00 PM - 4:00 PM (By Appointment)" },
+          { "label": "Teachers", "time": "As per scheduled Parent-Teacher Meetings" },
+          { "label": "Administrative Staff", "time": "Monday to Friday, 9:00 AM - 3:00 PM" }
+        ]
+      }
+    ]
+  }
+  
