@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-// Import gallery components
 import GalleryHeader from '../components/gallery/GalleryHeader';
 import CategoryFilter from '../components/gallery/CategoryFilter';
 import GalleryGrid from '../components/gallery/GalleryGrid';

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { eventData, eventCategories } from '../data/eventsData';
 
-// Import component files
 import EventsHeader from '../components/events/EventsHeader';
 import EventsFilter from '../components/events/EventsFilter';
 import EventGrid from '../components/events/EventGrid';

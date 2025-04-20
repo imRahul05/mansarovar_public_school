@@ -1,6 +1,4 @@
 import React from 'react';
-
-// Import components
 import AcademicsHeader from '../components/academics/AcademicsHeader';
 import CurriculumOverview from '../components/academics/CurriculumOverview';
 import AcademicLevels from '../components/academics/AcademicLevels';

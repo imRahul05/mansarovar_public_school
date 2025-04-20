@@ -1,0 +1,61 @@
+{
+  "title": "Our Staff",
+  "description": "Meet the dedicated team of educators and administrators who make Mansarovar Public School a center of excellence. Our staff brings experience, passion, and expertise to guide students on their educational journey.",
+  "loadingMessage": "Loading staff information...",
+  "staff": [
+    {
+      "_id": "1",
+      "name": "Dr. Anand Sharma",
+      "position": "Principal",
+      "qualification": "Ph.D., M.Ed.",
+      "experience": "25 years",
+      "image": "/src/assets/images/staff/principal.jpg",
+      "bio": "Dr. Sharma has been leading Mansarovar Public School for 10 years with a vision to provide quality education and holistic development to all students."
+    },
+    {
+      "_id": "2",
+      "name": "Mrs. Priya Gupta",
+      "position": "Vice Principal",
+      "qualification": "M.Sc., B.Ed.",
+      "experience": "18 years",
+      "image": "/src/assets/images/staff/vice-principal.jpg",
+      "bio": "Mrs. Gupta oversees academic excellence and student discipline, ensuring high standards are maintained throughout the school."
+    },
+    {
+      "_id": "3",
+      "name": "Mr. Rajesh Kumar",
+      "position": "Head of Sciences",
+      "qualification": "M.Sc. Physics",
+      "experience": "15 years",
+      "image": "/src/assets/images/staff/science-head.jpg",
+      "bio": "Mr. Kumar brings innovation to science education with his practical approach and engaging teaching methods."
+    },
+    {
+      "_id": "4",
+      "name": "Mrs. Sunita Patel",
+      "position": "Head of Languages",
+      "qualification": "M.A. English Literature",
+      "experience": "17 years",
+      "image": "/src/assets/images/staff/language-head.jpg",
+      "bio": "Mrs. Patel is passionate about literature and encourages creative writing among students."
+    },
+    {
+      "_id": "5",
+      "name": "Mr. Vikas Malhotra",
+      "position": "Mathematics Department",
+      "qualification": "M.Sc. Mathematics",
+      "experience": "12 years",
+      "image": "/src/assets/images/staff/maths-teacher.jpg",
+      "bio": "Mr. Malhotra makes mathematics accessible and enjoyable for all students with his unique teaching strategies."
+    },
+    {
+      "_id": "6",
+      "name": "Mrs. Deepa Singh",
+      "position": "Primary Section Coordinator",
+      "qualification": "B.Ed., M.A. Education",
+      "experience": "14 years",
+      "image": "/src/assets/images/staff/primary-coordinator.jpg",
+      "bio": "Mrs. Singh ensures that our youngest students receive age-appropriate education in a nurturing environment."
+    }
+  ]
+}

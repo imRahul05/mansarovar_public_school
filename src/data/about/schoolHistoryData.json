@@ -1,0 +1,53 @@
+{
+  "title": "Our Journey Through the Years",
+  "timeline": [
+    {
+      "year": "1995",
+      "title": "Foundation",
+      "description": "Mansarovar Public School was founded by educational visionary Mr. Rakesh Sharma with just 120 students and 15 teachers in a small rented building.",
+      "image": "/src/assets/images/history/founding.jpg",
+      "imageAlt": "School Founding",
+      "layout": "right" 
+    },
+    {
+      "year": "2000",
+      "title": "Expansion",
+      "description": "The school moved to its current 5-acre campus with expanded facilities including a library, science labs, and sports fields. Student strength grew to over 500.",
+      "image": "/src/assets/images/history/expansion.jpg",
+      "imageAlt": "School Expansion",
+      "layout": "left" 
+    },
+    {
+      "year": "2005",
+      "title": "CBSE Affiliation",
+      "description": "Mansarovar Public School received CBSE affiliation, marking a significant milestone in its academic journey. The first batch of Class 10 students graduated with excellent results.",
+      "image": "/src/assets/images/history/affiliation.jpg",
+      "imageAlt": "CBSE Affiliation",
+      "layout": "right" 
+    },
+    {
+      "year": "2010",
+      "title": "Innovation & Technology",
+      "description": "The school embraced digital education with smart classrooms and computer labs. A new modern building block was inaugurated with state-of-the-art facilities.",
+      "image": "/src/assets/images/history/technology.jpg",
+      "imageAlt": "Technology Integration",
+      "layout": "left" 
+    },
+    {
+      "year": "2020",
+      "title": "Silver Jubilee",
+      "description": "Celebrated 25 years of excellence in education. The school was recognized for its academic achievements and contribution to the community.",
+      "image": "/src/assets/images/history/silver-jubilee.jpg",
+      "imageAlt": "Silver Jubilee Celebration",
+      "layout": "right" 
+    },
+    {
+      "year": "Present Day",
+      "title": "Forward Looking",
+      "description": "Today, Mansarovar Public School stands as a premier educational institution with over 1,500 students and 100 staff members, continuously evolving to meet future challenges.",
+      "image": "/src/assets/images/history/present-day.jpg",
+      "imageAlt": "School Present Day",
+      "layout": "left" 
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "title": "Our Vision & Mission",
+  "vision": {
+    "title": "Our Vision",
+    "description": "To be a premier educational institution that nurtures global citizens with strong values, innovative thinking, and a commitment to positive change. We envision our students as future leaders who are intellectually competent, morally upright, socially conscious, and emotionally balanced.",
+    "icon": {
+      "path": "M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+    }
+  },
+  "mission": {
+    "title": "Our Mission",
+    "description": "Our mission is to provide holistic education that empowers students to excel academically while developing essential life skills. We are committed to:",
+    "icon": {
+      "path": "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+    },
+    "points": [
+      "Providing excellent academic education that encourages critical thinking",
+      "Fostering character development and ethical values",
+      "Creating a supportive and inclusive learning environment",
+      "Encouraging creativity and innovation",
+      "Building a strong partnership between school, parents, and community"
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "title": "Our Core Values",
+  "description": "These principles guide our approach to education and form the foundation of our school's culture.",
+  "values": [
+    {
+      "name": "Integrity",
+      "description": "We uphold honesty, truth, and moral uprightness in all actions and decisions. We encourage students to be principled individuals who take responsibility for their actions.",
+      "icon": {
+        "name": "shield-check",
+        "path": "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+      }
+    },
+    {
+      "name": "Excellence",
+      "description": "We strive for the highest standards in everything we do. We encourage students to pursue excellence not just in academics but in all their endeavors.",
+      "icon": {
+        "name": "office-building",
+        "path": "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+      }
+    },
+    {
+      "name": "Respect",
+      "description": "We foster respect for oneself, others, and the environment. We celebrate diversity and create an inclusive community where everyone feels valued and heard.",
+      "icon": {
+        "name": "users",
+        "path": "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+      }
+    },
+    {
+      "name": "Innovation",
+      "description": "We encourage creative thinking, problem-solving, and adaptation to change. We prepare students to thrive in a rapidly evolving world through innovative approaches to learning.",
+      "icon": {
+        "name": "lightning-bolt",
+        "path": "M13 10V3L4 14h7v7l9-11h-7z"
+      }
+    }
+  ]
+}

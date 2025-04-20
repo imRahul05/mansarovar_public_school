@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-// Import components
 import HeroBanner from '../components/home/HeroBanner';
 import AboutPreview from '../components/home/AboutPreview';
 import AcademicsPreview from '../components/home/AcademicsPreview';

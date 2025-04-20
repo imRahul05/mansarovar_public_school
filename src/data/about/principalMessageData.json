@@ -1,0 +1,18 @@
+{
+  "title": "Message from the Principal",
+  "principal": {
+    "name": "Dr. Anand Sharma",
+    "qualification": "Ph.D., M.Ed.",
+    "position": "Principal, Mansarovar Public School",
+    "image": "/src/assets/images/staff/principal.jpg",
+    "message": [
+      "Dear Parents and Students,",
+      "It gives me immense pleasure to welcome you to Mansarovar Public School. Our institution stands as a beacon of academic excellence and character development for over two decades.",
+      "At Mansarovar, we believe that education goes beyond textbooks and classrooms. Our goal is to nurture young minds to become responsible citizens who can contribute positively to society. We strive to create an environment where students can discover their potential, pursue their passions, and develop into well-rounded individuals.",
+      "Our dedicated faculty, state-of-the-art infrastructure, and comprehensive curriculum ensure that every child receives personalized attention and quality education. We emphasize on values like integrity, respect, and perseverance that shape the character of our students.",
+      "As we navigate the rapidly changing world, we are committed to equipping our students with the skills needed for the future while preserving our rich cultural heritage. The blend of tradition and modernity is what makes Mansarovar Public School unique.",
+      "I invite you to explore our school and join us in this enriching educational journey. Together, let us shape the future of our children.",
+      "Warm regards,\nDr. Anand Sharma"
+    ]
+  }
+}

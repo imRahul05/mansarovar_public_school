@@ -1,0 +1,43 @@
+{
+  "title": "Code of Conduct",
+  "description": "Our school code of conduct establishes guidelines for creating a positive learning environment that supports academic achievement and character development.",
+  "sections": [
+    {
+      "title": "For Students",
+      "rules": [
+        "Attend school regularly and punctually",
+        "Wear the proper school uniform and maintain neat appearance",
+        "Treat all members of the school community with respect and courtesy",
+        "Complete all assignments and homework on time",
+        "Take care of school property and environment",
+        "Participate actively in school activities",
+        "Adhere to the school's discipline and behavior guidelines",
+        "Use technology responsibly and appropriately"
+      ]
+    },
+    {
+      "title": "For Parents",
+      "rules": [
+        "Support your child's education and be involved in school activities",
+        "Ensure regular attendance and punctuality",
+        "Maintain open communication with teachers and school administration",
+        "Attend parent-teacher meetings regularly",
+        "Provide a supportive environment for homework and studies",
+        "Inform the school about any concerns affecting your child's education",
+        "Be familiar with and support school policies"
+      ]
+    },
+    {
+      "title": "For Staff",
+      "rules": [
+        "Demonstrate professional behavior and ethical standards",
+        "Provide quality education and mentorship to students",
+        "Maintain confidentiality regarding student information",
+        "Create an inclusive and positive learning environment",
+        "Continuously improve professional knowledge and skills",
+        "Collaborate with colleagues and parents for student success",
+        "Model the values and behaviors expected of students"
+      ]
+    }
+  ]
+}

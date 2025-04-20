@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-// Import components
 import NoticeHeader from '../components/noticeboard/NoticeHeader';
 import CategoryFilter from '../components/noticeboard/CategoryFilter';
 import NoticeList from '../components/noticeboard/NoticeList';
