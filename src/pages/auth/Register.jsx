@@ -11,7 +11,7 @@ const Register = () => {
     phone: '',
     password: '',
     confirmPassword: '',
-    userType: 'parent', // Default user type
+    userType: 'parent',
     studentClass: '',
     schoolCode: '',
     agreeToTerms: false
