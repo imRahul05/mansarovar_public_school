@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
 
   // Register a new user
   const register = async (userData) => {
-    const res = await axios.post('/api/auth/register', userData, { withCredentials: true });
+    const res = await axios.post('http://localhost:3000/api/auth/register', userData, { withCredentials: true });
     if (res.data.success) {
       setCurrentUser(res.data.user);
     }
@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }) => {
 
   // Login user
   const login = async (email, password) => {
-    const res = await axios.post('/api/auth/login', { email, password }, { withCredentials: true });
+    const res = await axios.post('http://localhost:3000/api/auth/login', { email, password }, { withCredentials: true });
     if (res.data.success) {
       setCurrentUser(res.data.user);
     }

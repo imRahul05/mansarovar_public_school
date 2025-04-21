@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import logo from '../../assets/images/logo.jpeg';
 
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -23,7 +24,6 @@ const DashboardLayout = () => {
     );
   }
 
-  // Redirect to login if not authenticated
   if (!currentUser) {
     return <Navigate to="/auth/login" state={{ from: location }} replace />;
   }
@@ -130,7 +130,7 @@ const DashboardLayout = () => {
       >
         {/* School Logo & Name */}
         <div className="p-4 bg-blue-900 flex items-center">
-          <img src="/src/assets/images/logo.png" alt="School Logo" className="w-10 h-10 mr-3" />
+          <img src={logo} alt="School Logo" className="w-10 h-10 mr-3" />
           <div>
             <h2 className="text-lg font-bold">Mansarovar</h2>
             <p className="text-xs text-blue-200">Public School Portal</p>
