@@ -1,7 +1,7 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
-
-
+import dotenv from 'dotenv';
+dotenv.config();
 const AuthContext = createContext();
 
 export const useAuth = () => {
@@ -32,8 +32,10 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Register a new user
+  const Backend_URL = process.env.backend_url;
+  console.log(Backend_URL);
   const register = async (userData) => {
-    const res = await axios.post('http://localhost:3000/api/auth/register', userData, { withCredentials: true });
+    const res = await axios.post(`${Backend_URL}/api/auth/register`, userData, { withCredentials: true });
     if (res.data.success) {
       setCurrentUser(res.data.user);
     }
@@ -42,7 +44,7 @@ export const AuthProvider = ({ children }) => {
 
   // Login user
   const login = async (email, password) => {
-    const res = await axios.post('http://localhost:3000/api/auth/login', { email, password }, { withCredentials: true });
+    const res = await axios.post(`${Backend_URL}/api/auth/login`, { email, password }, { withCredentials: true });
     if (res.data.success) {
       setCurrentUser(res.data.user);
     }
