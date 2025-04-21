@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Register a new user
-  const Backend_URL = process.env.backend_url;
+  const Backend_URL = import.meta.env.VITE_BACKEND_URL;
   console.log(Backend_URL);
   const register = async (userData) => {
     const res = await axios.post(`${Backend_URL}/api/auth/register`, userData, { withCredentials: true });
