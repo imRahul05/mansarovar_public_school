@@ -1,7 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
-import dotenv from 'dotenv';
-dotenv.config();
 const AuthContext = createContext();
 
 export const useAuth = () => {
