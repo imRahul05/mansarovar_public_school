@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkLoggedIn = async () => {
       try {
-        const res = await axios.get('/api/auth/me', { withCredentials: true });
+        const res = await axios.get(`${Backend_URL}/api/auth/me`, { withCredentials: true });
         if (res.data.success) {
           setCurrentUser(res.data.user);
         }
@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
 
   // Update user profile
   const updateProfile = async (userData) => {
-    const res = await axios.put('/api/auth/profile', userData, { withCredentials: true });
+    const res = await axios.put(`${Backend_URL}/api/auth/profile`, userData, { withCredentials: true });
     if (res.data.success) {
       setCurrentUser({
         ...currentUser,
@@ -69,13 +69,13 @@ export const AuthProvider = ({ children }) => {
 
   // Handle forgot password
   const forgotPassword = async (email) => {
-    const res = await axios.post('/api/auth/forgot-password', { email });
+    const res = await axios.post(`${Backend_URL}/api/auth/forgot-password`, { email });
     return res.data;
   };
 
   // Reset password
   const resetPassword = async (token, newPassword) => {
-    const res = await axios.post('/api/auth/reset-password', { token, newPassword });
+    const res = await axios.post(`${Backend_URL}/api/auth/reset-password`, { token, newPassword });
     return res.data;
   };
 
