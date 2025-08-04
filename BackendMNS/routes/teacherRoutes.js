@@ -3,9 +3,7 @@ import { protect, authorizeRoles } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-// @route   GET /api/teachers
-// @desc    Get all teachers
-// @access  Private/Admin
+
 router.get('/', protect, authorizeRoles('admin'), async (req, res) => {
   try {
     // This is a placeholder for the actual controller function
