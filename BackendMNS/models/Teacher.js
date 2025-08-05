@@ -64,7 +64,6 @@ const teacherSchema = new mongoose.Schema(
   }
 );
 
-// Create Teacher model
 const Teacher = mongoose.model('Teacher', teacherSchema);
 
 export default Teacher;
