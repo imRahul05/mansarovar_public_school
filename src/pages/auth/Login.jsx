@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import toast from 'react-hot-toast';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
+import { Button } from '../../components/ui/button';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
+import ButtonLoadingSpinner from '../../components/common/ButtonLoadingSpinner';
+import { guestCredentials, guestRoles } from '../../data/guestCredentials';
 import logo from '../../assets/images/logo.jpeg'
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -8,6 +15,9 @@ const Login = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [guestLoading, setGuestLoading] = useState(
+    guestRoles.reduce((acc, role) => ({ ...acc, [role]: false }), {})
+  );
   
   const { login, currentUser } = useAuth();
   const navigate = useNavigate();
@@ -25,8 +35,8 @@ const Login = () => {
     const from = location.state?.from?.pathname;
     if (from) return from;
     
-    // Otherwise redirect to appropriate dashboard
     switch (role) {
+      case 'superadmin': return '/portal/superadmin';
       case 'admin': return '/portal/admin';
       case 'teacher': return '/portal/teacher';
       case 'student': return '/portal/student';
@@ -46,30 +56,51 @@ const Login = () => {
     try {
       setLoading(true);
       await login(email, password);
-      // Login successful, redirection handled by useEffect
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to login. Please check your credentials.');
+      const errorMessage = err.response?.data?.message || 'Failed to login. Please check your credentials.';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleGuestLogin = async (role) => {
+    setError('');
+    
+    try {
+      setGuestLoading(prev => ({ ...prev, [role]: true }));
+      const credentials = guestCredentials[role];
+      await login(credentials.email, credentials.password);
+      toast.success(`Logged in as Guest ${role.charAt(0).toUpperCase() + role.slice(1)}`);
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || `Failed to login as guest ${role}`;
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setGuestLoading(prev => ({ ...prev, [role]: false }));
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
-        <div className="text-center">
-          <Link to="/">
-            <img 
-              src={logo}
-              alt="Mansarovar Public School" 
-              className="mx-auto h-16 w-auto rounded-md"
-            />
-          </Link>
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Access the School Portal
-          </p>
-        </div>
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      
+      <main className="flex-grow flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
+          <div className="text-center">
+            <Link to="/">
+              <img 
+                src={logo}
+                alt="Mansarovar Public School" 
+                className="mx-auto h-16 w-auto rounded-md"
+              />
+            </Link>
+            <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Access the School Portal
+            </p>
+          </div>
         
         {error && (
           <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
@@ -160,6 +191,48 @@ const Login = () => {
           </div>
         </form>
 
+        {/* Guest Login Buttons */}
+        <div className="mt-6">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Or try guest access</span>
+            </div>
+          </div>
+
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            {guestRoles.map((role) => (
+              <button
+                key={role}
+                type="button"
+                onClick={() => handleGuestLogin(role)}
+                disabled={guestLoading[role] || loading}
+                className={`
+                  relative w-full py-2 px-4 border border-gray-300 text-sm font-medium rounded-md
+                  transition-all duration-200 ease-in-out
+                  ${guestLoading[role] 
+                    ? 'bg-gray-100 text-gray-500 cursor-not-allowed opacity-75' 
+                    : 'bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 hover:shadow-md active:bg-gray-100'
+                  }
+                  disabled:cursor-not-allowed
+                  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
+                `}
+              >
+                {guestLoading[role] ? (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-90 rounded-md">
+                    <ButtonLoadingSpinner />
+                  </div>
+                ) : null}
+                <span className={guestLoading[role] ? 'opacity-30' : 'opacity-100'}>
+                  {guestCredentials[role].label}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="mt-4 text-center">
           <p className="text-sm text-gray-600">
             Don't have an account?{' '}
@@ -174,7 +247,10 @@ const Login = () => {
             Back to Home
           </Link>
         </div>
-      </div>
+        </div>
+      </main>
+      
+      <Footer />
     </div>
   );
 };

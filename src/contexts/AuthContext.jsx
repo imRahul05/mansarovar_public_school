@@ -1,5 +1,9 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
+import toast from 'react-hot-toast';
+
+const Backend_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+
 const AuthContext = createContext();
 
 export const useAuth = () => {
@@ -30,8 +34,6 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Register a new user
-  const Backend_URL = import.meta.env.VITE_BACKEND_URL;
-  console.log(Backend_URL);
   const register = async (userData) => {
     const res = await axios.post(`${Backend_URL}/api/auth/register`, userData, { withCredentials: true });
     if (res.data.success) {
@@ -45,6 +47,7 @@ export const AuthProvider = ({ children }) => {
     const res = await axios.post(`${Backend_URL}/api/auth/login`, { email, password }, { withCredentials: true });
     if (res.data.success) {
       setCurrentUser(res.data.user);
+      toast.success(`Welcome back, ${res.data.user.name}!`);
     }
     return res.data;
   };
@@ -53,6 +56,7 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     await axios.post(`${Backend_URL}/api/auth/logout`, {}, { withCredentials: true });
     setCurrentUser(null);
+    toast.success('Logged out successfully!');
   };
 
   // Update user profile

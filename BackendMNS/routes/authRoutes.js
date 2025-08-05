@@ -1,15 +1,40 @@
 import express from 'express';
-import { protect } from '../middlewares/authMiddleware.js';
+import { protect, authorizeRoles } from '../middlewares/authMiddleware.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
+import { generateCustomID } from '../utils/generateCustomID.js';
+import { registerSuperAdmin } from '../controllers/authController.js';
 
 const router = express.Router();
 
+router.post('/setup-superadmin', registerSuperAdmin);
 
-router.post('/register', async (req, res) => {
+router.post('/register', protect, authorizeRoles('admin', 'superadmin'), async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
+    const creatorRole = req.user.role;
+
+    // Role-based creation restrictions
+    if (creatorRole === 'admin') {
+      // Admin can only create students and teachers
+      if (role && role !== 'student' && role !== 'teacher') {
+        return res.status(403).json({
+          success: false,
+          message: 'Admins can only create students and teachers.'
+        });
+      }
+    }
+    
+    if (creatorRole === 'superadmin') {
+      // Superadmin can create admin, student, and teacher roles
+      if (role && !['student', 'teacher', 'admin'].includes(role)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Superadmins can create admin, teacher, and student roles only.'
+        });
+      }
+    }
 
     // Check if user already exists
     let user = await User.findOne({ email });
@@ -20,26 +45,26 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // Create new user
+    // Generate unique custom ID before creating user
+    let customID;
+    try {
+      customID = await generateCustomID(role || 'student');
+    } catch (error) {
+      console.error('Error generating custom ID:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Error generating unique ID for user'
+      });
+    }
+
+    // Create new user with custom ID
     user = await User.create({
       name,
       email,
       password, // will be hashed by pre-save hook
-      role: role || 'student' // default to student role
-    });
-
-    // Generate JWT
-    const token = jwt.sign(
-      { id: user._id }, 
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '30d' }
-    );
-
-    // Set token cookie
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+      role: role || 'student', // default to student role
+      customID, // Include custom ID during creation
+      isVerified: creatorRole === 'superadmin' // Only superadmin can create pre-verified users
     });
 
     // Return successful response with user data
@@ -48,9 +73,11 @@ router.post('/register', async (req, res) => {
       message: 'User registered successfully',
       user: {
         _id: user._id,
+        customID: user.customID,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        isVerified: user.isVerified
       }
     });
   } catch (error) {
@@ -77,7 +104,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Find user by email
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select('+password');
 
     // Check if user exists
     if (!user) {
@@ -86,6 +113,15 @@ router.post('/login', async (req, res) => {
         message: 'Invalid credentials'
       });
     }
+    
+    // Check if user is verified
+    if (!user.isVerified) {
+      return res.status(401).json({
+        success: false,
+        message: 'Account not verified. Please contact a superadmin.'
+      });
+    }
+
 
     // Check if password matches
     const isMatch = await user.matchPassword(password);
@@ -94,6 +130,17 @@ router.post('/login', async (req, res) => {
         success: false,
         message: 'Invalid credentials'
       });
+    }
+
+    // Generate unique ID if not already present
+    if (!user.customID) {
+      try {
+        user.customID = await generateCustomID(user.role);
+        await user.save();
+      } catch (error) {
+        console.error('Error generating custom ID:', error);
+        // Continue with login even if custom ID generation fails
+      }
     }
 
     // Generate JWT
@@ -110,12 +157,14 @@ router.post('/login', async (req, res) => {
       maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
     });
 
-    // Return successful response with user data
+    // Return successful response with user data and token
     res.status(200).json({
       success: true,
       message: 'Login successful',
+      token,
       user: {
         _id: user._id,
+        customID: user.customID,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -131,6 +180,82 @@ router.post('/login', async (req, res) => {
     });
   }
 });
+
+// @route   GET /api/auth/users
+// @desc    Get all users (for admin management)
+// @access  Private/Admin/Superadmin
+router.get('/users', protect, authorizeRoles('admin', 'superadmin'), async (req, res) => {
+  try {
+    const users = await User.find().select('-password');
+    
+    res.status(200).json({
+      success: true,
+      count: users.length,
+      users
+    });
+  } catch (error) {
+    console.error('Get users error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
+// @route   GET /api/auth/unverified-users
+// @desc    Get all unverified users
+// @access  Private/Superadmin
+router.get('/unverified-users', protect, authorizeRoles('superadmin'), async (req, res) => {
+  try {
+    const unverifiedUsers = await User.find({ isVerified: false }).select('-password');
+    
+    res.status(200).json({
+      success: true,
+      count: unverifiedUsers.length,
+      users: unverifiedUsers
+    });
+  } catch (error) {
+    console.error('Get unverified users error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
+// @route   PUT /api/auth/verify/:id
+// @desc    Verify a user
+// @access  Private/Superadmin
+router.put('/verify/:id', protect, authorizeRoles('superadmin'), async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    user.isVerified = true;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: `User ${user.name} has been verified.`
+    });
+  } catch (error) {
+    console.error('Verify user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
 
 // @route   POST /api/auth/logout
 // @desc    Logout user / clear cookie
@@ -193,6 +318,7 @@ router.put('/profile', protect, async (req, res) => {
       message: 'Profile updated successfully',
       user: {
         _id: user._id,
+        customID: user.customID,
         name: user.name,
         email: user.email,
         role: user.role,

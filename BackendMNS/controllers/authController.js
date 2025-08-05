@@ -8,6 +8,62 @@ import crypto from 'crypto';
 // @desc    Register new user
 // @route   POST /api/auth/register
 // @access  Public
+
+
+
+export const registerSuperAdmin=async (req, res) => {
+  try {
+    const existingSuperadmin = await User.findOne({ role: 'superadmin' });
+
+    if (existingSuperadmin) {
+      return res.status(403).json({
+        success: false,
+        message: 'Superadmin already exists. This route is disabled.',
+      });
+    }
+
+    const { name, email, password, contactNumber, address } = req.body;
+
+    // Generate unique custom ID before creating user
+    let customID;
+    try {
+      customID = await generateCustomID('superadmin');
+    } catch (error) {
+      console.error('Error generating custom ID:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Error generating unique ID for superadmin'
+      });
+    }
+
+    const user = new User({
+      name,
+      email,
+      password,
+      role: 'superadmin',
+      customID,
+      contactNumber,
+      address,
+      isVerified: true,
+      isActive: true,
+    });
+
+    await user.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Superadmin created successfully',
+      data: {
+        customID: user.customID,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+}
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;

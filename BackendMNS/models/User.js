@@ -19,12 +19,21 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, 'Password is required'],
-      minlength: [6, 'Password must be at least 6 characters']
+      trim: true,
+      select: false, // Exclude password from queries by default
+      minlength: [6, 'Password must be at least 6 characters'],
+      match: [/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/, 'Password must contain at least one uppercase letter, one lowercase letter, and one number']
+    },
+    customID: {
+      type: String,
+      unique: true,
+      sparse: true // allows null values to not conflict with uniqueness
     },
     role: {
       type: String,
-      enum: ['student', 'teacher', 'admin'],
-      default: 'student'
+      enum: ['student', 'teacher', 'admin','superadmin'],
+      default: 'student',
+      required: [true, 'Role is required']
     },
     profilePicture: {
       type: String,
@@ -32,7 +41,8 @@ const userSchema = new mongoose.Schema(
     },
     contactNumber: {
       type: String,
-      trim: true
+      trim: true,
+      match: [/^\d{10}$/, 'Please enter a valid 10-digit phone number'],
     },
     address: {
       street: String,
@@ -45,6 +55,10 @@ const userSchema = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true
+    },
+    isVerified: {
+      type: Boolean,
+      default: false
     },
     lastLogin: {
       type: Date
@@ -60,7 +74,6 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// Hash password before saving user
 userSchema.pre('save', async function (next) {
   // Only hash the password if it has been modified (or is new)
   if (!this.isModified('password')) {
@@ -78,7 +91,7 @@ userSchema.pre('save', async function (next) {
   }
 });
 
-// Create User model
+
 const User = mongoose.model('User', userSchema);
 
 export default User;

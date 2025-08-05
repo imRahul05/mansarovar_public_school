@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Suspense, lazy, useEffect } from 'react';
 import { AuthProvider } from './contexts/AuthContext';
+import { Toaster } from 'react-hot-toast';
 
 // Layout components
 import MainLayout from './components/layout/MainLayout';
@@ -19,13 +20,13 @@ const Contact = lazy(() => import('./pages/Contact'));
 
 // Auth pages
 const Login = lazy(() => import('./pages/auth/Login'));
-const Register = lazy(() => import('./pages/auth/Register'));
 const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'));
 
 // Portal pages
 const StudentDashboard = lazy(() => import('./pages/portals/student/Dashboard'));
 const TeacherDashboard = lazy(() => import('./pages/portals/teacher/Dashboard'));
 const AdminDashboard = lazy(() => import('./pages/portals/admin/Dashboard'));
+const SuperadminDashboard = lazy(() => import('./pages/portals/superadmin/Dashboard'));
 
 // Loading fallback
 const LoadingFallback = () => (
@@ -59,7 +60,6 @@ function App() {
             {/* Auth Routes */}
             <Route path="auth">
               <Route path="login" element={<Login />} />
-              <Route path="register" element={<Register />} />
               <Route path="forgot-password" element={<ForgotPassword />} />
             </Route>
             
@@ -68,12 +68,37 @@ function App() {
               <Route path="student/*" element={<StudentDashboard />} />
               <Route path="teacher/*" element={<TeacherDashboard />} />
               <Route path="admin/*" element={<AdminDashboard />} />
+              <Route path="superadmin/*" element={<SuperadminDashboard />} />
             </Route>
             
             {/* 404 Route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
+        
+        {/* Toast notifications */}
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            duration: 1000,
+            style: {
+              background: '#363636',
+              color: '#fff',
+            },
+            success: {
+              duration: 900,
+              theme: {
+                primary: '#4aed88',
+              },
+            },
+            error: {
+              duration: 1000,
+              theme: {
+                primary: '#ff4b4b',
+              },
+            },
+          }}
+        />
       </Router>
     </AuthProvider>
   );

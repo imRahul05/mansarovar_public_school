@@ -1,16 +1,16 @@
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import AuthContext from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import logo  from '../../assets/images/logo.jpeg'
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { currentUser, logout } = useContext(AuthContext);
+  const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/login');
+      navigate('/auth/login');
     } catch (error) {
       console.error('Logout failed:', error);
     }
@@ -29,7 +29,7 @@ const Header = () => {
   ];
 
   return (
-    <header className="bg-white shadow-md">
+    <header className="bg-white shadow-md sticky top-0 z-50">
       {/* Top Bar with contact info */}
       <div className="bg-blue-900 text-white py-2">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap justify-between items-center">
@@ -58,7 +58,7 @@ const Header = () => {
                   Logout
                 </button>
                 <Link 
-                  to={`/dashboard/${currentUser.role.toLowerCase()}`} 
+                  to={`/portal/${currentUser.role.toLowerCase()}`} 
                   className="ml-2 text-xs bg-blue-700 hover:bg-blue-800 py-1 px-2 rounded"
                 >
                   Dashboard
@@ -68,9 +68,6 @@ const Header = () => {
               <div>
                 <Link to="/auth/login" className="text-xs hover:text-blue-200 mr-4">
                   Login
-                </Link>
-                <Link to="/auth/register" className="text-xs bg-blue-700 hover:bg-blue-800 py-1 px-2 rounded">
-                  Register
                 </Link>
               </div>
             )}
@@ -103,9 +100,13 @@ const Header = () => {
                 key={link.name}
                 to={link.path}
                 className={({ isActive }) =>
-                  isActive
-                    ? 'text-blue-700 font-medium'
-                    : 'text-gray-700 hover:text-blue-700'
+                  `relative py-2 px-1 transition-colors duration-300 ${
+                    isActive
+                      ? 'text-blue-700 font-medium'
+                      : 'text-gray-700 hover:text-blue-700'
+                  } after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-blue-700 after:transition-all after:duration-300 hover:after:w-full ${
+                    isActive ? 'after:w-full' : ''
+                  }`
                 }
               >
                 {link.name}
