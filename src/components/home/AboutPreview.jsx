@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import school from '../../assets/images/school.png'
 
 const AboutPreview = () => {
   return (
@@ -9,7 +8,7 @@ const AboutPreview = () => {
         <div className="flex flex-col md:flex-row items-center gap-8">
           <div className="md:w-1/2">
             <img 
-              src={school} 
+              src="https://i.ibb.co/27P5MZNn/school-compress.png"
               alt="Students at Mansarovar Public School" 
               className="rounded-2xl shadow-lg w-full h-auto object-cover border-purple-500 transform transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:rotate-1 cursor-pointer"
               style={{ maxHeight: '400px' }}
