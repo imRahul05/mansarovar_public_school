@@ -1,0 +1,91 @@
+import express from 'express';
+import { protect, authorizeRoles } from '../middlewares/authMiddleware.js';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import { generateCustomID } from '../utils/generateCustomID.js';
+import { loginUser, logoutUser, registerSuperAdmin, registerUser } from '../controllers/authController.js';
+import User from '../models/User.js';
+import { deleteUserByID, getAllUsers, getUnverifiedUsers, getUserDetailsByID, userStatusUpdate, verifyUser } from '../controllers/superadminController.js';
+import Student from '../models/Student.js';
+
+const adminRouter = express.Router();
+
+
+//@api/admin
+
+adminRouter.post('/users/batch', protect, authorizeRoles('admin', 'superadmin'), async (req, res) => {
+    try {
+        const {
+            name,
+            email,
+            password,
+            contactNumber,
+            address,
+            // student-specific fields
+            admissionNumber,
+            class: studentClass,
+            section,
+            rollNumber,
+            dateOfBirth,
+            gender,
+            bloodGroup,
+            fatherName,
+            motherName,
+            parentContactNumber,
+            parentEmail,
+            emergencyContactName,
+            emergencyContactNumber,
+            emergencyContactRelation,
+            admissionDate,
+            previousSchool,
+            academicYear,
+            medicalConditions,
+        } = req.body;
+        // Step 1: Create User
+        const existingUser = await User.findOne({ email });
+        // check is user is already exist's 
+        if (existingUser) return res.status(400).json({ message: 'Email already exists' });
+        const newUser = new User({
+            name,
+            email,
+            password,
+            role: 'student',
+            contactNumber,
+            address
+        });
+        const savedUser = await newUser.save();
+        // Step 2: Create Student
+        const newStudent = new Student({
+            user: savedUser._id,
+            admissionNumber,
+            class: studentClass,
+            section,
+            rollNumber,
+            dateOfBirth,
+            gender,
+            bloodGroup,
+            fatherName,
+            motherName,
+            parentContactNumber,
+            parentEmail,
+            emergencyContactName,
+            emergencyContactNumber,
+            emergencyContactRelation,
+            admissionDate,
+            previousSchool,
+            academicYear,
+            medicalConditions,
+        });
+        const savedStudent = await newStudent.save();
+        res.status(201).json({
+            message: 'Student created successfully',
+            userId: savedUser._id,
+            studentId: savedStudent._id
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Something went wrong' });
+    }
+})
+
+export default adminRouter;
