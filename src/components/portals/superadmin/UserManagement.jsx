@@ -8,8 +8,14 @@ import {
   Filter,
   MoreVertical,
   CheckCircle,
-  XCircle
+  XCircle,
+  Users,
+  Power,
+  PowerOff
 } from 'lucide-react';
+import { superAdminAPI } from '../../../services/api';
+import toast from 'react-hot-toast';
+import ConfirmationDialog from '../../common/ConfirmationDialog';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -18,69 +24,62 @@ const UserManagement = () => {
   const [filterRole, setFilterRole] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
 
-  // Mock data - replace with actual API call
+  // Fetch users from API
   useEffect(() => {
-    // Simulating API call
-    setTimeout(() => {
-      setUsers([
-        {
-          _id: '1',
-          customID: 'MNS_stu_001',
-          name: 'John Doe',
-          email: 'john@example.com',
-          role: 'student',
-          isVerified: true,
-          isActive: true,
-          createdAt: '2024-01-15'
-        },
-        {
-          _id: '2',
-          customID: 'MNS_teacher_001',
-          name: 'Jane Smith',
-          email: 'jane@example.com',
-          role: 'teacher',
-          isVerified: false,
-          isActive: true,
-          createdAt: '2024-01-10'
-        },
-        {
-          _id: '3',
-          customID: 'MNS_admin_001',
-          name: 'Bob Wilson',
-          email: 'bob@example.com',
-          role: 'admin',
-          isVerified: true,
-          isActive: false,
-          createdAt: '2024-01-05'
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const response = await superAdminAPI.getUsers();
+        if (response.success) {
+          setUsers(response.users);
+        } else {
+          toast.error('Failed to fetch users');
         }
-      ]);
-      setLoading(false);
-    }, 1000);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        toast.error(error.message || 'Failed to fetch users');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
   }, []);
 
   const handleVerifyToggle = async (userId, currentStatus) => {
     try {
-      // API call to toggle verification
-      setUsers(users.map(user => 
-        user._id === userId 
-          ? { ...user, isVerified: !currentStatus }
-          : user
-      ));
+      if (!currentStatus) {
+        // Only verify users, not unverify
+        const response = await superAdminAPI.verifyUser(userId);
+        if (response.success) {
+          setUsers(users.map(user => 
+            user._id === userId 
+              ? { ...user, isVerified: true }
+              : user
+          ));
+          toast.success(response.message || 'User verified successfully');
+        }
+      }
     } catch (error) {
       console.error('Error toggling verification:', error);
+      toast.error(error.message || 'Failed to verify user');
     }
   };
 
   const handleActiveToggle = async (userId, currentStatus) => {
     try {
-      // API call to toggle active status
-      setUsers(users.map(user => 
-        user._id === userId 
-          ? { ...user, isActive: !currentStatus }
-          : user
-      ));
+      const response = await superAdminAPI.updateUserStatus(userId, !currentStatus);
+      if (response.success) {
+        setUsers(users.map(user => 
+          user._id === userId 
+            ? { ...user, isActive: !currentStatus }
+            : user
+        ));
+        toast.success(`User ${!currentStatus ? 'activated' : 'deactivated'} successfully`);
+      }
     } catch (error) {
       console.error('Error toggling active status:', error);
+      toast.error(error.message || 'Failed to update user status');
     }
   };
 
@@ -246,25 +245,48 @@ const UserManagement = () => {
                         <Eye className="h-4 w-4" />
                       </Link>
                       
-                      <button
-                        onClick={() => handleVerifyToggle(user._id, user.isVerified)}
-                        className={`${
-                          user.isVerified ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'
-                        }`}
-                        title={user.isVerified ? 'Unverify User' : 'Verify User'}
-                      >
-                        {user.isVerified ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
-                      </button>
+                      <ConfirmationDialog
+                        trigger={
+                          <button
+                            className={`p-1 rounded hover:bg-gray-100 transition-colors ${
+                              user.isVerified ? 'text-gray-400 cursor-not-allowed' : 'text-green-600 hover:text-green-700'
+                            }`}
+                            title={user.isVerified ? 'Already Verified' : 'Verify User'}
+                            disabled={user.isVerified}
+                          >
+                            <UserCheck className="h-4 w-4" />
+                          </button>
+                        }
+                        title="Verify User"
+                        description={`Are you sure you want to verify ${user.name}? Once verified, this action cannot be reversed. Please check the user data carefully before proceeding.`}
+                        actionText="Verify User"
+                        cancelText="Cancel"
+                        onConfirm={() => handleVerifyToggle(user._id, user.isVerified)}
+                        variant="warning"
+                      />
                       
-                      <button
-                        onClick={() => handleActiveToggle(user._id, user.isActive)}
-                        className={`${
-                          user.isActive ? 'text-orange-600 hover:text-orange-900' : 'text-blue-600 hover:text-blue-900'
-                        }`}
+                      <ConfirmationDialog
+                        trigger={
+                          <button
+                            className={`p-1 rounded hover:bg-gray-100 transition-colors ${
+                              user.isActive ? 'text-orange-600 hover:text-orange-700' : 'text-green-600 hover:text-green-700'
+                            }`}
+                            title={user.isActive ? 'Deactivate User' : 'Activate User'}
+                          >
+                            {user.isActive ? (
+                              <PowerOff className="h-4 w-4" />
+                            ) : (
+                              <Power className="h-4 w-4" />
+                            )}
+                          </button>
+                        }
                         title={user.isActive ? 'Deactivate User' : 'Activate User'}
-                      >
-                        <MoreVertical className="h-4 w-4" />
-                      </button>
+                        description={`Are you sure you want to ${user.isActive ? 'deactivate' : 'activate'} ${user.name}? ${user.isActive ? 'The user will lose access to the system.' : 'The user will regain access to the system.'}`}
+                        actionText={user.isActive ? 'Deactivate' : 'Activate'}
+                        cancelText="Cancel"
+                        onConfirm={() => handleActiveToggle(user._id, user.isActive)}
+                        variant={user.isActive ? 'warning' : 'default'}
+                      />
                     </div>
                   </td>
                 </tr>

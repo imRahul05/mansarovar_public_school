@@ -7,7 +7,8 @@ import {
   Settings, 
   LogOut, 
   Shield,
-  UserCheck
+  UserCheck,
+  Home
 } from 'lucide-react';
 
 const SuperadminSidebar = () => {
@@ -23,6 +24,12 @@ const SuperadminSidebar = () => {
   };
 
   const navigation = [
+    {
+      name: 'Dashboard',
+      href: '/portal/superadmin',
+      icon: Home,
+      current: location.pathname === '/portal/superadmin'
+    },
     {
       name: 'User Management',
       href: '/portal/superadmin/users',

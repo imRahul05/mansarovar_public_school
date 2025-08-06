@@ -13,6 +13,9 @@ import {
   UserCheck,
   UserX
 } from 'lucide-react';
+import { superAdminAPI } from '../../../services/api';
+import toast from 'react-hot-toast';
+import ConfirmationDialog from '../../common/ConfirmationDialog';
 
 const UserDetails = () => {
   const { id } = useParams();
@@ -21,57 +24,68 @@ const UserDetails = () => {
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Mock data - replace with actual API call
+  // Fetch user details from API
   useEffect(() => {
-    // Simulating API call
-    setTimeout(() => {
-      setUser({
-        _id: id,
-        customID: 'MNS_stu_001',
-        name: 'John Doe',
-        email: 'john@example.com',
-        role: 'student',
-        contactNumber: '1234567890',
-        address: {
-          street: '123 Main St',
-          city: 'New York',
-          state: 'NY',
-          zipCode: '10001'
-        },
-        isVerified: true,
-        isActive: true,
-        createdAt: '2024-01-15',
-        lastLogin: '2024-01-20',
-        profilePicture: ''
-      });
-      setLoading(false);
-    }, 1000);
+    const fetchUser = async () => {
+      try {
+        setLoading(true);
+        const response = await superAdminAPI.getUserById(id);
+        if (response.success) {
+          setUser(response.user);
+        } else {
+          toast.error('Failed to fetch user details');
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error);
+        toast.error(error.message || 'Failed to fetch user details');
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
   }, [id]);
 
   const handleVerifyToggle = async () => {
     try {
-      setUser(prev => ({ ...prev, isVerified: !prev.isVerified }));
+      if (!user.isVerified) {
+        const response = await superAdminAPI.verifyUser(user._id);
+        if (response.success) {
+          setUser(prev => ({ ...prev, isVerified: true }));
+          toast.success(response.message || 'User verified successfully');
+        }
+      }
     } catch (error) {
       console.error('Error toggling verification:', error);
+      toast.error(error.message || 'Failed to verify user');
     }
   };
 
   const handleActiveToggle = async () => {
     try {
-      setUser(prev => ({ ...prev, isActive: !prev.isActive }));
+      const response = await superAdminAPI.updateUserStatus(user._id, !user.isActive);
+      if (response.success) {
+        setUser(prev => ({ ...prev, isActive: !prev.isActive }));
+        toast.success(`User ${!user.isActive ? 'activated' : 'deactivated'} successfully`);
+      }
     } catch (error) {
       console.error('Error toggling active status:', error);
+      toast.error(error.message || 'Failed to update user status');
     }
   };
 
   const handleDeleteUser = async () => {
-    if (window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-      try {
-        // API call to delete user
+    try {
+      const response = await superAdminAPI.deleteUser(user._id);
+      if (response.success) {
+        toast.success('User deleted successfully');
         navigate('/portal/superadmin/users');
-      } catch (error) {
-        console.error('Error deleting user:', error);
       }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast.error(error.message || 'Failed to delete user');
     }
   };
 
@@ -128,28 +142,47 @@ const UserDetails = () => {
         </div>
         
         <div className="flex items-center space-x-2">
-          <button
-            onClick={handleVerifyToggle}
-            className={`inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md ${
-              user.isVerified
-                ? 'text-red-700 bg-red-100 hover:bg-red-200'
-                : 'text-green-700 bg-green-100 hover:bg-green-200'
-            }`}
-          >
-            {user.isVerified ? <UserX className="h-4 w-4 mr-1" /> : <UserCheck className="h-4 w-4 mr-1" />}
-            {user.isVerified ? 'Unverify' : 'Verify'}
-          </button>
+          <ConfirmationDialog
+            trigger={
+              <button
+                className={`inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md ${
+                  user.isVerified
+                    ? 'text-gray-500 bg-gray-100 cursor-not-allowed'
+                    : 'text-green-700 bg-green-100 hover:bg-green-200'
+                }`}
+                disabled={user.isVerified}
+              >
+                {user.isVerified ? <UserCheck className="h-4 w-4 mr-1" /> : <UserCheck className="h-4 w-4 mr-1" />}
+                {user.isVerified ? 'Verified' : 'Verify'}
+              </button>
+            }
+            title="Verify User"
+            description={`Are you sure you want to verify ${user.name}? Once verified, this action cannot be reversed. Please check the user data carefully before proceeding.`}
+            actionText="Verify User"
+            cancelText="Cancel"
+            onConfirm={handleVerifyToggle}
+            variant="warning"
+          />
           
-          <button
-            onClick={handleActiveToggle}
-            className={`inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md ${
-              user.isActive
-                ? 'text-orange-700 bg-orange-100 hover:bg-orange-200'
-                : 'text-blue-700 bg-blue-100 hover:bg-blue-200'
-            }`}
-          >
-            {user.isActive ? 'Deactivate' : 'Activate'}
-          </button>
+          <ConfirmationDialog
+            trigger={
+              <button
+                className={`inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md ${
+                  user.isActive
+                    ? 'text-orange-700 bg-orange-100 hover:bg-orange-200'
+                    : 'text-blue-700 bg-blue-100 hover:bg-blue-200'
+                }`}
+              >
+                {user.isActive ? 'Deactivate' : 'Activate'}
+              </button>
+            }
+            title={user.isActive ? 'Deactivate User' : 'Activate User'}
+            description={`Are you sure you want to ${user.isActive ? 'deactivate' : 'activate'} ${user.name}? ${user.isActive ? 'The user will lose access to the system.' : 'The user will regain access to the system.'}`}
+            actionText={user.isActive ? 'Deactivate' : 'Activate'}
+            cancelText="Cancel"
+            onConfirm={handleActiveToggle}
+            variant={user.isActive ? 'warning' : 'default'}
+          />
           
           <button
             onClick={() => setIsEditing(!isEditing)}
@@ -159,13 +192,22 @@ const UserDetails = () => {
             Edit
           </button>
           
-          <button
-            onClick={handleDeleteUser}
-            className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200"
-          >
-            <Trash2 className="h-4 w-4 mr-1" />
-            Delete
-          </button>
+          <ConfirmationDialog
+            trigger={
+              <button
+                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200"
+              >
+                <Trash2 className="h-4 w-4 mr-1" />
+                Delete
+              </button>
+            }
+            title="Delete User"
+            description={`Are you sure you want to delete ${user.name}? This action cannot be undone. All user data will be permanently removed from the system.`}
+            actionText="Delete User"
+            cancelText="Cancel"
+            onConfirm={handleDeleteUser}
+            variant="destructive"
+          />
         </div>
       </div>
 
@@ -286,28 +328,47 @@ const UserDetails = () => {
               <h3 className="text-lg font-medium text-gray-900">Quick Actions</h3>
             </div>
             <div className="p-6 space-y-3">
-              <button
-                onClick={handleVerifyToggle}
-                className={`w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md ${
-                  user.isVerified
-                    ? 'text-red-700 bg-red-100 hover:bg-red-200'
-                    : 'text-green-700 bg-green-100 hover:bg-green-200'
-                }`}
-              >
-                {user.isVerified ? <UserX className="h-4 w-4 mr-2" /> : <UserCheck className="h-4 w-4 mr-2" />}
-                {user.isVerified ? 'Unverify User' : 'Verify User'}
-              </button>
+              <ConfirmationDialog
+                trigger={
+                  <button
+                    className={`w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md ${
+                      user.isVerified
+                        ? 'text-gray-500 bg-gray-100 cursor-not-allowed'
+                        : 'text-green-700 bg-green-100 hover:bg-green-200'
+                    }`}
+                    disabled={user.isVerified}
+                  >
+                    {user.isVerified ? <UserCheck className="h-4 w-4 mr-2" /> : <UserCheck className="h-4 w-4 mr-2" />}
+                    {user.isVerified ? 'Already Verified' : 'Verify User'}
+                  </button>
+                }
+                title="Verify User"
+                description={`Are you sure you want to verify ${user.name}? Once verified, this action cannot be reversed. Please check the user data carefully before proceeding.`}
+                actionText="Verify User"
+                cancelText="Cancel"
+                onConfirm={handleVerifyToggle}
+                variant="warning"
+              />
 
-              <button
-                onClick={handleActiveToggle}
-                className={`w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md ${
-                  user.isActive
-                    ? 'text-orange-700 bg-orange-100 hover:bg-orange-200'
-                    : 'text-blue-700 bg-blue-100 hover:bg-blue-200'
-                }`}
-              >
-                {user.isActive ? 'Deactivate Account' : 'Activate Account'}
-              </button>
+              <ConfirmationDialog
+                trigger={
+                  <button
+                    className={`w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md ${
+                      user.isActive
+                        ? 'text-orange-700 bg-orange-100 hover:bg-orange-200'
+                        : 'text-blue-700 bg-blue-100 hover:bg-blue-200'
+                    }`}
+                  >
+                    {user.isActive ? 'Deactivate Account' : 'Activate Account'}
+                  </button>
+                }
+                title={user.isActive ? 'Deactivate User' : 'Activate User'}
+                description={`Are you sure you want to ${user.isActive ? 'deactivate' : 'activate'} ${user.name}? ${user.isActive ? 'The user will lose access to the system.' : 'The user will regain access to the system.'}`}
+                actionText={user.isActive ? 'Deactivate' : 'Activate'}
+                cancelText="Cancel"
+                onConfirm={handleActiveToggle}
+                variant={user.isActive ? 'warning' : 'default'}
+              />
 
               <button
                 onClick={() => setIsEditing(!isEditing)}
@@ -317,13 +378,22 @@ const UserDetails = () => {
                 Edit Profile
               </button>
 
-              <button
-                onClick={handleDeleteUser}
-                className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete User
-              </button>
+              <ConfirmationDialog
+                trigger={
+                  <button
+                    className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete User
+                  </button>
+                }
+                title="Delete User"
+                description={`Are you sure you want to delete ${user.name}? This action cannot be undone. All user data will be permanently removed from the system.`}
+                actionText="Delete User"
+                cancelText="Cancel"
+                onConfirm={handleDeleteUser}
+                variant="destructive"
+              />
             </div>
           </div>
         </div>

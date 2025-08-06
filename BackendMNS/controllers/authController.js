@@ -4,6 +4,7 @@ import Teacher from '../models/Teacher.js';
 import generateToken from '../utils/generateToken.js';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 
 // @desc    Register new user
 // @route   POST /api/auth/register
@@ -67,155 +68,187 @@ export const registerSuperAdmin=async (req, res) => {
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
+    const creatorRole = req.user.role;
+
+    // Role-based creation restrictions
+    if (creatorRole === 'admin') {
+      // Admin can only create students and teachers
+      if (role && role !== 'student' && role !== 'teacher') {
+        return res.status(403).json({
+          success: false,
+          message: 'Admins can only create students and teachers.'
+        });
+      }
+    }
+    
+    if (creatorRole === 'superadmin') {
+      // Superadmin can create admin, student, and teacher roles
+      if (role && !['student', 'teacher', 'admin'].includes(role)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Superadmins can create admin, teacher, and student roles only.'
+        });
+      }
+    }
 
     // Check if user already exists
-    const userExists = await User.findOne({ email });
-    if (userExists) {
+    let user = await User.findOne({ email });
+    if (user) {
       return res.status(400).json({
         success: false,
-        message: 'User already exists'
+        message: 'User with this email already exists'
       });
     }
 
-    // Create user with role (default is 'student')
-    const user = await User.create({
+    // Generate unique custom ID before creating user
+    let customID;
+    try {
+      customID = await generateCustomID(role || 'student');
+    } catch (error) {
+      console.error('Error generating custom ID:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Error generating unique ID for user'
+      });
+    }
+
+    // Create new user with custom ID
+    user = await User.create({
       name,
       email,
-      password,
-      role: role || 'student'
+      password, // will be hashed by pre-save hook
+      role: role || 'student', // default to student role
+      customID, // Include custom ID during creation
+      isVerified: creatorRole === 'superadmin' // Only superadmin can create pre-verified users
     });
 
-    if (user) {
-      // Generate token
-      const token = generateToken(user._id);
-
-      // Set cookie
-      res.cookie('jwt', token, {
-        httpOnly: true,
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
-      });
-
-      // Return user data
-      return res.status(201).json({
-        success: true,
-        user: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role
-        }
-      });
-    } else {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid user data'
-      });
-    }
+    // Return successful response with user data
+    res.status(201).json({
+      success: true,
+      message: 'User registered successfully',
+      user: {
+        _id: user._id,
+        customID: user.customID,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isVerified: user.isVerified
+      }
+    });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({
+    console.error('Register error:', error);
+    res.status(500).json({
       success: false,
       message: 'Server error',
       error: error.message
     });
   }
-};
+}
 
-// @desc    Login user
-// @route   POST /api/auth/login
-// @access  Public
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user by email
-    const user = await User.findOne({ email });
-
-    // Check if user exists and password is correct
-    if (user && (await user.matchPassword(password))) {
-      // Update last login time
-      user.lastLogin = Date.now();
-      await user.save();
-
-      // Generate token
-      const token = generateToken(user._id);
-
-      // Set cookie
-      res.cookie('jwt', token, {
-        httpOnly: true,
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
-      });
-
-      // Get additional user info based on role
-      let additionalInfo = {};
-      if (user.role === 'student') {
-        const studentInfo = await Student.findOne({ user: user._id });
-        if (studentInfo) {
-          additionalInfo = {
-            admissionNumber: studentInfo.admissionNumber,
-            class: studentInfo.class,
-            section: studentInfo.section
-          };
-        }
-      } else if (user.role === 'teacher') {
-        const teacherInfo = await Teacher.findOne({ user: user._id });
-        if (teacherInfo) {
-          additionalInfo = {
-            employeeId: teacherInfo.employeeId,
-            designation: teacherInfo.designation,
-            classTeacherOf: teacherInfo.classTeacherOf
-          };
-        }
-      }
-
-      return res.json({
-        success: true,
-        user: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          ...additionalInfo
-        }
-      });
-    } else {
-      return res.status(401).json({
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({
         success: false,
-        message: 'Invalid email or password'
+        message: 'Please provide email and password'
       });
     }
+
+    // Find user by email
+    const user = await User.findOne({ email }).select('+password');
+
+    // Check if user exists
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
+    }
+    
+    // Check if user is verified
+    if (!user.isVerified) {
+      return res.status(401).json({
+        success: false,
+        message: 'Account not verified. Please contact a superadmin.'
+      });
+    }
+
+
+    // Check if password matches
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
+    }
+
+    // Generate unique ID if not already present
+    if (!user.customID) {
+      try {
+        user.customID = await generateCustomID(user.role);
+        await user.save();
+      } catch (error) {
+        console.error('Error generating custom ID:', error);
+        // Continue with login even if custom ID generation fails
+      }
+    }
+
+    // Generate JWT
+    const token = jwt.sign(
+      { id: user._id }, 
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '30d' }
+    );
+
+    // Set token cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    });
+
+    // Return successful response with user data and token
+    res.status(200).json({
+      success: true,
+      message: 'Login successful',
+      token,
+      user: {
+        _id: user._id,
+        customID: user.customID,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        profilePicture: user.profilePicture
+      }
+    });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({
+    console.error('Login error:', error);
+    res.status(500).json({
       success: false,
       message: 'Server error',
       error: error.message
     });
   }
-};
+}
 
-// @desc    Logout user / clear cookie
-// @route   POST /api/auth/logout
-// @access  Private
+
 export const logoutUser = (req, res) => {
-  res.cookie('jwt', '', {
+  res.cookie('token', 'none', {
     httpOnly: true,
     expires: new Date(0)
   });
-  
+
   res.status(200).json({
     success: true,
-    message: 'Logged out successfully'
+    message: 'User logged out successfully'
   });
-};
+}
 
-// @desc    Get current user profile
-// @route   GET /api/auth/me
-// @access  Private
+
 export const getCurrentUser = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password');
@@ -264,9 +297,6 @@ export const getCurrentUser = async (req, res) => {
   }
 };
 
-// @desc    Update user profile
-// @route   PUT /api/auth/profile
-// @access  Private
 export const updateUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
@@ -318,9 +348,6 @@ export const updateUserProfile = async (req, res) => {
   }
 };
 
-// @desc    Forgot password
-// @route   POST /api/auth/forgot-password
-// @access  Public
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;

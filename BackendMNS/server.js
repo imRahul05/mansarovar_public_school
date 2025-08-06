@@ -13,6 +13,7 @@ import teacherRoutes from './routes/teacherRoutes.js';
 import noticeRoutes from './routes/noticeRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 import galleryRoutes from './routes/galleryRoutes.js';
+import superAdminRouter from './routes/superAdminRoute.js';
 
 // Load environment variables
 dotenv.config();
@@ -39,6 +40,7 @@ app.use(cors({
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/superadmin', superAdminRouter);
 app.use('/api/students', studentRoutes);
 app.use('/api/teachers', teacherRoutes);
 app.use('/api/notices', noticeRoutes);

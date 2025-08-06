@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import { validators } from 'tailwind-merge';
 
 const userSchema = new mongoose.Schema(
   {
@@ -58,7 +59,8 @@ const userSchema = new mongoose.Schema(
     },
     isVerified: {
       type: Boolean,
-      default: false
+      default: false,
+  
     },
     lastLogin: {
       type: Date

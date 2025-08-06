@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import SuperadminSidebar from '../../../components/portals/superadmin/SuperadminSidebar';
+import DashboardOverview from '../../../components/portals/superadmin/DashboardOverview';
 import UserManagement from '../../../components/portals/superadmin/UserManagement';
 import UserDetails from '../../../components/portals/superadmin/UserDetails';
 import Analytics from '../../../components/portals/superadmin/Analytics';
@@ -21,7 +22,7 @@ const SuperadminDashboard = () => {
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
           <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
             <Routes>
-              <Route index element={<UserManagement />} />
+              <Route index element={<DashboardOverview />} />
               <Route path="users" element={<UserManagement />} />
               <Route path="users/:id" element={<UserDetails />} />
               <Route path="analytics" element={<Analytics />} />
