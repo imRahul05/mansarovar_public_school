@@ -4,43 +4,25 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
 import { generateCustomID } from '../utils/generateCustomID.js';
-import { loginUser, logoutUser, registerSuperAdmin, registerUser } from '../controllers/authController.js';
+import { getMe, loginUser, logoutUser, registerSuperAdmin, registerUser } from '../controllers/authController.js';
 
-const router = express.Router();
+const authRouter = express.Router();
 
-router.post('/setup-superadmin', registerSuperAdmin);
+authRouter.post('/setup-superadmin', registerSuperAdmin);
 
-router.post('/register', protect, authorizeRoles('admin', 'superadmin'), registerUser);
-
-
-router.post('/login',loginUser );
+authRouter.post('/register', protect, authorizeRoles('admin', 'superadmin'), registerUser);
 
 
-router.post('/logout',logoutUser );
+authRouter.post('/login',loginUser );
 
 
-router.get('/me', protect, async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id).select('-password');
-    
-    res.status(200).json({
-      success: true,
-      user
-    });
-  } catch (error) {
-    console.error('Get user profile error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error',
-      error: error.message
-    });
-  }
-});
+authRouter.post('/logout',logoutUser );
 
-// @route   PUT /api/auth/profile
-// @desc    Update user profile
-// @access  Private
-router.put('/profile', protect, async (req, res) => {
+
+authRouter.get('/me', protect, getMe);
+
+
+authRouter.put('/profile', protect, async (req, res) => {
   try {
     const { name, email, contactNumber, address, profilePicture } = req.body;
     
@@ -81,10 +63,7 @@ router.put('/profile', protect, async (req, res) => {
   }
 });
 
-// @route   PUT /api/auth/password
-// @desc    Update password
-// @access  Private
-router.put('/password', protect, async (req, res) => {
+authRouter.put('/password', protect, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
     
@@ -118,10 +97,8 @@ router.put('/password', protect, async (req, res) => {
   }
 });
 
-// @route   POST /api/auth/forgot-password
-// @desc    Forgot password
-// @access  Public
-router.post('/forgot-password', async (req, res) => {
+
+authRouter.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
     
@@ -166,10 +143,7 @@ router.post('/forgot-password', async (req, res) => {
   }
 });
 
-// @route   POST /api/auth/reset-password
-// @desc    Reset password
-// @access  Public
-router.post('/reset-password', async (req, res) => {
+authRouter.post('/reset-password', async (req, res) => {
   try {
     const { token, newPassword } = req.body;
     
@@ -214,4 +188,4 @@ router.post('/reset-password', async (req, res) => {
   }
 });
 
-export default router;
+export default authRouter;

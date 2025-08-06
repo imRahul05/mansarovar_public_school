@@ -89,4 +89,49 @@ export const superAdminAPI = {
   }
 };
 
+// Admin APIs for creating users
+export const adminAPI = {
+  // Create student
+  createStudent: async (studentData) => {
+    try {
+      const response = await api.post('/students', studentData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  // Create teacher
+  createTeacher: async (teacherData) => {
+    try {
+      const response = await api.post('/teachers', teacherData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  // Create multiple students
+  createMultipleStudents: async (studentsData) => {
+    try {
+      const promises = studentsData.map(student => api.post('/students', student));
+      const responses = await Promise.all(promises);
+      return responses.map(response => response.data);
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  // Create multiple teachers
+  createMultipleTeachers: async (teachersData) => {
+    try {
+      const promises = teachersData.map(teacher => api.post('/teachers', teacher));
+      const responses = await Promise.all(promises);
+      return responses.map(response => response.data);
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  }
+};
+
 export default api;
