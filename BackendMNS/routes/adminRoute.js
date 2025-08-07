@@ -13,11 +13,7 @@ const adminRouter = express.Router();
 
 //@api/admin
 
-<<<<<<< HEAD
-adminRouter.post('/users/batch', protect, authorizeRoles('admin', 'superadmin'), async (req, res) => {
-=======
 adminRouter.post('/students/batch', protect, authorizeRoles('admin', 'superadmin'), async (req, res) => {
->>>>>>> origin/main
     try {
         const {
             name,
@@ -49,8 +45,6 @@ adminRouter.post('/students/batch', protect, authorizeRoles('admin', 'superadmin
         const existingUser = await User.findOne({ email });
         // check is user is already exist's 
         if (existingUser) return res.status(400).json({ message: 'Email already exists' });
-<<<<<<< HEAD
-=======
         // Generate unique custom ID before creating user
         let customID;
         try {
@@ -63,16 +57,12 @@ adminRouter.post('/students/batch', protect, authorizeRoles('admin', 'superadmin
             });
         }
 
->>>>>>> origin/main
         const newUser = new User({
             name,
             email,
             password,
             role: 'student',
-<<<<<<< HEAD
-=======
             customID,
->>>>>>> origin/main
             contactNumber,
             address
         });
@@ -105,16 +95,10 @@ adminRouter.post('/students/batch', protect, authorizeRoles('admin', 'superadmin
             userId: savedUser._id,
             studentId: savedStudent._id
         });
-<<<<<<< HEAD
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Something went wrong' });
-=======
 
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Something went wrong', err });
->>>>>>> origin/main
     }
 })
 
