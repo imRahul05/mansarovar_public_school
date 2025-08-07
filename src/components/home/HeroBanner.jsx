@@ -1,14 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import principal from '../../assets/images/principal.png';
-import school from '../../assets/images/school.png';
+
 const HeroBanner = () => {
   return (
     <section className="relative bg-gradient-to-r from-blue-800 to-blue-600 text-white">
       {/* Background Overlay Image */}
       <div 
         className="absolute inset-0 opacity-60 bg-cover bg-center"
-        style={{ backgroundImage: `url(${school})` }}
+        style={{ backgroundImage: 'url("https://i.ibb.co/27P5MZNn/school-compress.png")'}}
       ></div>
       <div className="container mx-auto px-4 py-20 md:py-32 relative z-10">
         <div className="flex flex-col md:flex-row items-center gap-8">
@@ -36,7 +35,7 @@ const HeroBanner = () => {
           </div>
           <div className="md:w-1/3 flex justify-center">
             <img 
-              src={principal} 
+              src="https://i.ibb.co/BHQpPBxN/principal-compresses.png"
               alt="School Principal" 
               className="w-64 h-64 md:w-80 md:h-80 object-cover rounded-full shadow-2xl border-4 border-white transform transition-all duration-500 hover:scale-105 cursor-pointer"
             />

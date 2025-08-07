@@ -6,64 +6,49 @@ import {
   GraduationCap, 
   Save,
   UserPlus,
+  Star,
   AlertCircle
 } from 'lucide-react';
+import { studentFields, studentFieldValidations, studentFormSections } from '../../../data/studentFields.js';
+import { teacherFields, teacherFieldValidations, teacherFormSections } from '../../../data/teacherFields.js';
+import { adminAPI } from '../../../services/api.js';
 
 const CreateUser = () => {
   const [userType, setUserType] = useState('student');
-  const [users, setUsers] = useState([{
-    id: 1,
-    name: '',
-    email: '',
-    password: '',
-    contactNumber: '',
-    address: {
-      street: '',
-      city: '',
-      state: '',
-      zipCode: ''
-    },
-    // Student specific fields
-    studentClass: '',
-    section: '',
-    rollNumber: '',
-    parentName: '',
-    parentEmail: '',
-    parentPhone: '',
-    // Teacher specific fields
-    subject: '',
-    qualification: '',
-    experience: '',
-    employeeId: ''
+  const [users, setUsers] = useState([{ 
+    id: 1, 
+    ...studentFields
   }]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
+  // Get current field template based on user type
+  const getFieldTemplate = () => {
+    return userType === 'student' ? studentFields : teacherFields;
+  };
+
+  // Get current validations based on user type
+  const getValidations = () => {
+    return userType === 'student' ? studentFieldValidations : teacherFieldValidations;
+  };
+
+  // Get current form sections based on user type
+  const getFormSections = () => {
+    return userType === 'student' ? studentFormSections : teacherFormSections;
+  };
+
+  // Reset users when type changes
+  const handleUserTypeChange = (type) => {
+    setUserType(type);
+    const template = type === 'student' ? studentFields : teacherFields;
+    setUsers([{ id: 1, ...template }]);
+    setErrors({});
+  };
+
   const addUser = () => {
     const newUser = {
       id: users.length + 1,
-      name: '',
-      email: '',
-      password: '',
-      contactNumber: '',
-      address: {
-        street: '',
-        city: '',
-        state: '',
-        zipCode: ''
-      },
-      // Student specific fields
-      studentClass: '',
-      section: '',
-      rollNumber: '',
-      parentName: '',
-      parentEmail: '',
-      parentPhone: '',
-      // Teacher specific fields
-      subject: '',
-      qualification: '',
-      experience: '',
-      employeeId: ''
+      ...getFieldTemplate()
     };
     setUsers([...users, newUser]);
   };
@@ -78,14 +63,19 @@ const CreateUser = () => {
     setUsers(users.map(user => {
       if (user.id === id) {
         if (field.includes('.')) {
-          const [parent, child] = field.split('.');
-          return {
-            ...user,
-            [parent]: {
-              ...user[parent],
-              [child]: value
-            }
-          };
+          const fieldParts = field.split('.');
+          let updatedUser = { ...user };
+          let current = updatedUser;
+          
+          // Navigate to the nested object
+          for (let i = 0; i < fieldParts.length - 1; i++) {
+            current[fieldParts[i]] = { ...current[fieldParts[i]] };
+            current = current[fieldParts[i]];
+          }
+          
+          // Set the final value
+          current[fieldParts[fieldParts.length - 1]] = value;
+          return updatedUser;
         }
         return { ...user, [field]: value };
       }
@@ -103,55 +93,45 @@ const CreateUser = () => {
 
   const validateUsers = () => {
     const newErrors = {};
+    const validations = getValidations();
     
     users.forEach(user => {
-      // Common validations
-      if (!user.name.trim()) {
-        newErrors[`${user.id}.name`] = 'Name is required';
-      }
-      if (!user.email.trim()) {
-        newErrors[`${user.id}.email`] = 'Email is required';
-      } else if (!/\S+@\S+\.\S+/.test(user.email)) {
+      // Check required fields
+      validations.required.forEach(field => {
+        const value = getNestedValue(user, field);
+        if (!value || (typeof value === 'string' && !value.trim())) {
+          newErrors[`${user.id}.${field}`] = `${formatFieldName(field)} is required`;
+        }
+      });
+
+      // Email validation
+      if (user.email && !/\S+@\S+\.\S+/.test(user.email)) {
         newErrors[`${user.id}.email`] = 'Email is invalid';
       }
-      if (!user.password) {
-        newErrors[`${user.id}.password`] = 'Password is required';
-      } else if (user.password.length < 6) {
+
+      // Password validation
+      if (user.password && user.password.length < 6) {
         newErrors[`${user.id}.password`] = 'Password must be at least 6 characters';
       }
 
-      // Student specific validations
-      if (userType === 'student') {
-        if (!user.studentClass) {
-          newErrors[`${user.id}.studentClass`] = 'Class is required';
-        }
-        if (!user.section) {
-          newErrors[`${user.id}.section`] = 'Section is required';
-        }
-        if (!user.rollNumber) {
-          newErrors[`${user.id}.rollNumber`] = 'Roll number is required';
-        }
-        if (!user.parentName.trim()) {
-          newErrors[`${user.id}.parentName`] = 'Parent name is required';
-        }
-      }
-
-      // Teacher specific validations
-      if (userType === 'teacher') {
-        if (!user.subject) {
-          newErrors[`${user.id}.subject`] = 'Subject is required';
-        }
-        if (!user.qualification.trim()) {
-          newErrors[`${user.id}.qualification`] = 'Qualification is required';
-        }
-        if (!user.employeeId.trim()) {
-          newErrors[`${user.id}.employeeId`] = 'Employee ID is required';
-        }
+      // Parent email validation (for students)
+      if (userType === 'student' && user.parentEmail && !/\S+@\S+\.\S+/.test(user.parentEmail)) {
+        newErrors[`${user.id}.parentEmail`] = 'Parent email is invalid';
       }
     });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  // Helper function to get nested value
+  const getNestedValue = (obj, path) => {
+    return path.split('.').reduce((current, key) => current?.[key], obj);
+  };
+
+  // Helper function to format field names for display
+  const formatFieldName = (field) => {
+    return field.split('.').pop().replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
   };
 
   const handleSubmit = async (e) => {
@@ -164,315 +144,200 @@ const CreateUser = () => {
     setLoading(true);
     
     try {
-      // API call to create multiple users
-      const usersToCreate = users.map(user => ({
-        name: user.name,
-        email: user.email,
-        password: user.password,
-        role: userType,
-        contactNumber: user.contactNumber,
-        address: user.address,
-        ...(userType === 'student' && {
-          studentClass: user.studentClass,
-          section: user.section,
-          rollNumber: user.rollNumber,
-          parentName: user.parentName,
-          parentEmail: user.parentEmail,
-          parentPhone: user.parentPhone
-        }),
-        ...(userType === 'teacher' && {
-          subject: user.subject,
-          qualification: user.qualification,
-          experience: user.experience,
-          employeeId: user.employeeId
-        })
-      }));
+      const usersToCreate = users.map(user => {
+        // Remove the id field as it's only for frontend tracking
+        const { id, ...userData } = user;
+        
+        // For students, ensure the class field is properly named
+        if (userType === 'student') {
+          return {
+            ...userData,
+            class: userData.class // Ensure class field is properly set
+          };
+        }
+        
+        return userData;
+      });
 
-      console.log('Creating users:', usersToCreate);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      let response;
+      if (userType === 'student') {
+        if (users.length === 1) {
+          response = await adminAPI.createStudent(usersToCreate[0]);
+        } else {
+          response = await adminAPI.createMultipleStudents(usersToCreate);
+        }
+      } else {
+        if (users.length === 1) {
+          response = await adminAPI.createTeacher(usersToCreate[0]);
+        } else {
+          response = await adminAPI.createMultipleTeachers(usersToCreate);
+        }
+      }
       
       // Reset form
-      setUsers([{
-        id: 1,
-        name: '',
-        email: '',
-        password: '',
-        contactNumber: '',
-        address: { street: '', city: '', state: '', zipCode: '' },
-        studentClass: '', section: '', rollNumber: '', parentName: '', parentEmail: '', parentPhone: '',
-        subject: '', qualification: '', experience: '', employeeId: ''
-      }]);
+      setUsers([{ id: 1, ...getFieldTemplate() }]);
+      setErrors({});
       
-      alert(`${users.length} ${userType}(s) created successfully!`);
+      // Show success message
+      const successMessage = Array.isArray(response) 
+        ? `${response.length} ${userType}(s) created successfully!`
+        : `${userType.charAt(0).toUpperCase() + userType.slice(1)} created successfully!`;
+      
+      alert(successMessage);
+      
     } catch (error) {
       console.error('Error creating users:', error);
-      alert('Error creating users. Please try again.');
+      const errorMessage = error.message || 'Error creating users. Please try again.';
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  const renderCommonFields = (user) => (
-    <>
-      {/* Basic Info */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Full Name *</label>
-          <input
-            type="text"
-            value={user.name}
-            onChange={(e) => updateUser(user.id, 'name', e.target.value)}
-            className={`mt-1 block w-full px-3 py-2 border ${
-              errors[`${user.id}.name`] ? 'border-red-300' : 'border-gray-300'
-            } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
-            placeholder="Enter full name"
-          />
-          {errors[`${user.id}.name`] && <p className="mt-1 text-sm text-red-600">{errors[`${user.id}.name`]}</p>}
-        </div>
+  // Dynamic field renderer
+  const renderField = (user, field, fieldConfig = {}) => {
+    const validations = getValidations();
+    const fieldValue = getNestedValue(user, field);
+    const isRequired = validations.required.includes(field);
+    const hasError = errors[`${user.id}.${field}`];
+    const options = validations.options[field] || validations.options[field.split('.').pop()];
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Email *</label>
-          <input
-            type="email"
-            value={user.email}
-            onChange={(e) => updateUser(user.id, 'email', e.target.value)}
-            className={`mt-1 block w-full px-3 py-2 border ${
-              errors[`${user.id}.email`] ? 'border-red-300' : 'border-gray-300'
-            } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
-            placeholder="Enter email address"
-          />
-          {errors[`${user.id}.email`] && <p className="mt-1 text-sm text-red-600">{errors[`${user.id}.email`]}</p>}
-        </div>
+    const fieldProps = {
+      value: fieldValue || '',
+      onChange: (e) => updateUser(user.id, field, e.target.value),
+      className: `mt-1 block w-full px-3 py-2 border ${
+        hasError ? 'border-red-300' : 'border-gray-300'
+      } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`,
+      placeholder: fieldConfig.placeholder || `Enter ${formatFieldName(field).toLowerCase()}`
+    };
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Password *</label>
-          <input
-            type="password"
-            value={user.password}
-            onChange={(e) => updateUser(user.id, 'password', e.target.value)}
-            className={`mt-1 block w-full px-3 py-2 border ${
-              errors[`${user.id}.password`] ? 'border-red-300' : 'border-gray-300'
-            } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
-            placeholder="Enter password"
-          />
-          {errors[`${user.id}.password`] && <p className="mt-1 text-sm text-red-600">{errors[`${user.id}.password`]}</p>}
-        </div>
+    let fieldElement;
 
+    // Handle special field types
+    if (field === 'subjectsSpecialization') {
+      return (
         <div>
-          <label className="block text-sm font-medium text-gray-700">Contact Number</label>
-          <input
-            type="tel"
-            value={user.contactNumber}
-            onChange={(e) => updateUser(user.id, 'contactNumber', e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Enter contact number"
-          />
+          <label className="block text-sm font-medium text-gray-700">
+            Subjects Specialization {isRequired && '*'}
+          </label>
+          <select
+            multiple
+            {...fieldProps}
+            value={fieldValue || []}
+            onChange={(e) => {
+              const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+              updateUser(user.id, field, selectedOptions);
+            }}
+            className={`${fieldProps.className} h-24`}
+          >
+            {options?.map(option => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+          <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple subjects</p>
+          {hasError && <p className="mt-1 text-sm text-red-600">{hasError}</p>}
         </div>
+      );
+    }
+
+    if (options) {
+      // Dropdown field
+      fieldElement = (
+        <select {...fieldProps}>
+          <option value="">Select {formatFieldName(field)}</option>
+          {options.map(option => (
+            <option key={option} value={option}>{option}</option>
+          ))}
+        </select>
+      );
+    } else if (field.includes('date') || field === 'dateOfBirth' || field === 'dateOfJoining' || field === 'admissionDate') {
+      // Date field
+      const today = new Date().toISOString().split('T')[0];
+      fieldElement = (
+        <input
+          type="date"
+          {...fieldProps}
+          max={field === 'dateOfBirth' ? today : undefined}
+        />
+      );
+    } else if (field === 'password') {
+      // Password field
+      fieldElement = (
+        <input
+          type="password"
+          {...fieldProps}
+        />
+      );
+    } else if (field === 'email' || field === 'parentEmail') {
+      // Email field
+      fieldElement = (
+        <input
+          type="email"
+          {...fieldProps}
+        />
+      );
+    } else if (field.includes('Number') || field.includes('years') || field === 'rollNumber') {
+      // Number field
+      fieldElement = (
+        <input
+          type="number"
+          {...fieldProps}
+          min="0"
+        />
+      );
+    } else if (field.includes('details') || field === 'medicalConditions') {
+      // Textarea field
+      fieldElement = (
+        <textarea
+          {...fieldProps}
+          rows="3"
+          className={fieldProps.className.replace('block w-full', 'block w-full resize-none')}
+        />
+      );
+    } else {
+      // Text field
+      fieldElement = (
+        <input
+          type="text"
+          {...fieldProps}
+        />
+      );
+    }
+
+    return (
+      <div>
+        <label className="block text-sm font-medium text-gray-700">
+          {formatFieldName(field)} {isRequired && <span className='text-red-600'>*</span>}
+        </label>
+        {fieldElement}
+        {hasError && <p className="mt-1 text-sm text-red-600">{hasError}</p>}
       </div>
+    );
+  };
 
-      {/* Address */}
-      <div className="space-y-4">
-        <h4 className="text-sm font-medium text-gray-700">Address</h4>
+  // Render form sections dynamically
+  const renderFormSections = (user) => {
+    const sections = getFormSections();
+    
+    return sections.map((section, index) => (
+      <div key={index} className="space-y-4">
+        <h4 className="text-sm font-medium text-gray-700 border-b border-gray-200 pb-2">
+          {section.title}
+        </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="md:col-span-2">
-            <input
-              type="text"
-              value={user.address.street}
-              onChange={(e) => updateUser(user.id, 'address.street', e.target.value)}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Street Address"
-            />
-          </div>
-          <div>
-            <input
-              type="text"
-              value={user.address.city}
-              onChange={(e) => updateUser(user.id, 'address.city', e.target.value)}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              placeholder="City"
-            />
-          </div>
-          <div>
-            <input
-              type="text"
-              value={user.address.state}
-              onChange={(e) => updateUser(user.id, 'address.state', e.target.value)}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              placeholder="State"
-            />
-          </div>
+          {section.fields.map(field => (
+            <div key={field} className={
+              field.includes('address.street') || field.includes('details') || field === 'medicalConditions'
+                ? 'md:col-span-2' 
+                : ''
+            }>
+              {renderField(user, field)}
+            </div>
+          ))}
         </div>
       </div>
-    </>
-  );
-
-  const renderStudentFields = (user) => (
-    <div className="space-y-4">
-      <h4 className="text-sm font-medium text-gray-700">Student Information</h4>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Class *</label>
-          <select
-            value={user.studentClass}
-            onChange={(e) => updateUser(user.id, 'studentClass', e.target.value)}
-            className={`mt-1 block w-full px-3 py-2 border ${
-              errors[`${user.id}.studentClass`] ? 'border-red-300' : 'border-gray-300'
-            } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
-          >
-            <option value="">Select Class</option>
-            {Array.from({ length: 7 }, (_, i) => (
-              <option key={i + 6} value={i + 6}>Class {i + 6}</option>
-            ))}
-          </select>
-          {errors[`${user.id}.studentClass`] && <p className="mt-1 text-sm text-red-600">{errors[`${user.id}.studentClass`]}</p>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Section *</label>
-          <select
-            value={user.section}
-            onChange={(e) => updateUser(user.id, 'section', e.target.value)}
-            className={`mt-1 block w-full px-3 py-2 border ${
-              errors[`${user.id}.section`] ? 'border-red-300' : 'border-gray-300'
-            } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
-          >
-            <option value="">Select Section</option>
-            {['A', 'B', 'C', 'D'].map(section => (
-              <option key={section} value={section}>Section {section}</option>
-            ))}
-          </select>
-          {errors[`${user.id}.section`] && <p className="mt-1 text-sm text-red-600">{errors[`${user.id}.section`]}</p>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Roll Number *</label>
-          <input
-            type="text"
-            value={user.rollNumber}
-            onChange={(e) => updateUser(user.id, 'rollNumber', e.target.value)}
-            className={`mt-1 block w-full px-3 py-2 border ${
-              errors[`${user.id}.rollNumber`] ? 'border-red-300' : 'border-gray-300'
-            } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
-            placeholder="Enter roll number"
-          />
-          {errors[`${user.id}.rollNumber`] && <p className="mt-1 text-sm text-red-600">{errors[`${user.id}.rollNumber`]}</p>}
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <h5 className="text-sm font-medium text-gray-700">Parent/Guardian Information</h5>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Parent Name *</label>
-            <input
-              type="text"
-              value={user.parentName}
-              onChange={(e) => updateUser(user.id, 'parentName', e.target.value)}
-              className={`mt-1 block w-full px-3 py-2 border ${
-                errors[`${user.id}.parentName`] ? 'border-red-300' : 'border-gray-300'
-              } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
-              placeholder="Enter parent name"
-            />
-            {errors[`${user.id}.parentName`] && <p className="mt-1 text-sm text-red-600">{errors[`${user.id}.parentName`]}</p>}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Parent Email</label>
-            <input
-              type="email"
-              value={user.parentEmail}
-              onChange={(e) => updateUser(user.id, 'parentEmail', e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter parent email"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Parent Phone</label>
-            <input
-              type="tel"
-              value={user.parentPhone}
-              onChange={(e) => updateUser(user.id, 'parentPhone', e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter parent phone"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderTeacherFields = (user) => (
-    <div className="space-y-4">
-      <h4 className="text-sm font-medium text-gray-700">Teacher Information</h4>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Subject *</label>
-          <select
-            value={user.subject}
-            onChange={(e) => updateUser(user.id, 'subject', e.target.value)}
-            className={`mt-1 block w-full px-3 py-2 border ${
-              errors[`${user.id}.subject`] ? 'border-red-300' : 'border-gray-300'
-            } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
-          >
-            <option value="">Select Subject</option>
-            <option value="Mathematics">Mathematics</option>
-            <option value="Science">Science</option>
-            <option value="English">English</option>
-            <option value="Hindi">Hindi</option>
-            <option value="Social Studies">Social Studies</option>
-            <option value="Computer Science">Computer Science</option>
-            <option value="Physics">Physics</option>
-            <option value="Chemistry">Chemistry</option>
-            <option value="Biology">Biology</option>
-          </select>
-          {errors[`${user.id}.subject`] && <p className="mt-1 text-sm text-red-600">{errors[`${user.id}.subject`]}</p>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Employee ID *</label>
-          <input
-            type="text"
-            value={user.employeeId}
-            onChange={(e) => updateUser(user.id, 'employeeId', e.target.value)}
-            className={`mt-1 block w-full px-3 py-2 border ${
-              errors[`${user.id}.employeeId`] ? 'border-red-300' : 'border-gray-300'
-            } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
-            placeholder="Enter employee ID"
-          />
-          {errors[`${user.id}.employeeId`] && <p className="mt-1 text-sm text-red-600">{errors[`${user.id}.employeeId`]}</p>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Qualification *</label>
-          <input
-            type="text"
-            value={user.qualification}
-            onChange={(e) => updateUser(user.id, 'qualification', e.target.value)}
-            className={`mt-1 block w-full px-3 py-2 border ${
-              errors[`${user.id}.qualification`] ? 'border-red-300' : 'border-gray-300'
-            } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
-            placeholder="Enter qualification (e.g., B.Ed, M.A.)"
-          />
-          {errors[`${user.id}.qualification`] && <p className="mt-1 text-sm text-red-600">{errors[`${user.id}.qualification`]}</p>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Experience (years)</label>
-          <input
-            type="number"
-            value={user.experience}
-            onChange={(e) => updateUser(user.id, 'experience', e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Enter years of experience"
-            min="0"
-          />
-        </div>
-      </div>
-    </div>
-  );
+    ));
+  };
 
   return (
     <div className="space-y-6">
@@ -491,7 +356,7 @@ const CreateUser = () => {
         <h3 className="text-lg font-medium text-gray-900 mb-4">Select User Type</h3>
         <div className="flex space-x-4">
           <button
-            onClick={() => setUserType('student')}
+            onClick={() => handleUserTypeChange('student')}
             className={`flex items-center px-4 py-2 rounded-md text-sm font-medium ${
               userType === 'student'
                 ? 'bg-blue-600 text-white'
@@ -502,7 +367,7 @@ const CreateUser = () => {
             Student
           </button>
           <button
-            onClick={() => setUserType('teacher')}
+            onClick={() => handleUserTypeChange('teacher')}
             className={`flex items-center px-4 py-2 rounded-md text-sm font-medium ${
               userType === 'teacher'
                 ? 'bg-blue-600 text-white'
@@ -519,7 +384,7 @@ const CreateUser = () => {
         {/* Users List */}
         {users.map((user, index) => (
           <div key={user.id} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-medium text-gray-900">
                 {userType.charAt(0).toUpperCase() + userType.slice(1)} #{index + 1}
               </h3>
@@ -527,7 +392,7 @@ const CreateUser = () => {
                 <button
                   type="button"
                   onClick={() => removeUser(user.id)}
-                  className="flex items-center px-2 py-1 text-red-600 hover:text-red-800"
+                  className="flex items-center px-2 py-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded"
                 >
                   <Trash2 className="h-4 w-4 mr-1" />
                   Remove
@@ -536,9 +401,7 @@ const CreateUser = () => {
             </div>
 
             <div className="space-y-6">
-              {renderCommonFields(user)}
-              {userType === 'student' && renderStudentFields(user)}
-              {userType === 'teacher' && renderTeacherFields(user)}
+              {renderFormSections(user)}
             </div>
           </div>
         ))}
@@ -548,7 +411,7 @@ const CreateUser = () => {
           <button
             type="button"
             onClick={addUser}
-            className="flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+            className="flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             <Plus className="h-4 w-4 mr-2" />
             Add Another {userType.charAt(0).toUpperCase() + userType.slice(1)}
@@ -560,16 +423,10 @@ const CreateUser = () => {
           <button
             type="button"
             onClick={() => {
-              setUsers([{
-                id: 1,
-                name: '', email: '', password: '', contactNumber: '',
-                address: { street: '', city: '', state: '', zipCode: '' },
-                studentClass: '', section: '', rollNumber: '', parentName: '', parentEmail: '', parentPhone: '',
-                subject: '', qualification: '', experience: '', employeeId: ''
-              }]);
+              setUsers([{ id: 1, ...getFieldTemplate() }]);
               setErrors({});
             }}
-            className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+            className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
           >
             Reset
           </button>
@@ -603,10 +460,11 @@ const CreateUser = () => {
             <h3 className="text-sm font-medium text-blue-800">Information</h3>
             <div className="mt-2 text-sm text-blue-700">
               <ul className="list-disc list-inside space-y-1">
-                <li>All users will be created as unverified and need superadmin approval.</li>
-                <li>Temporary passwords should be shared securely with the users.</li>
-                <li>Users will receive their unique ID after account creation.</li>
+                <li>All {userType}s will be created according to the backend API structure.</li>
                 <li>Required fields are marked with an asterisk (*).</li>
+                <li>For students: Academic year and admission details are required.</li>
+                <li>For teachers: Employee ID and subject specialization are required.</li>
+                <li>Passwords should be shared securely with the users after creation.</li>
               </ul>
             </div>
           </div>

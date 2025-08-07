@@ -20,7 +20,10 @@ dotenv.config();
 
 // Connect to MongoDB
 connectDB();
-
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://mansarovar-public-school-green.vercel.app'
+];
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -31,13 +34,24 @@ const __dirname = dirname(__filename);
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
+// app.use(cors({
+//   origin: process.env.NODE_ENV === 'production'
+//     ? [process.env.CLIENT_URL, 'https://mansarovar-public-school-green.vercel.app']
+//     : ['http://localhost:5173', 'https://mansarovar-public-school-green.vercel.app'],
+//   credentials: true
+// }));
+
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production'
-    ? [process.env.CLIENT_URL, 'https://mansarovar-public-school-green.vercel.app']
-    : ['http://localhost:5173', 'https://mansarovar-public-school-green.vercel.app'],
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
-
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/superadmin', superAdminRouter);
