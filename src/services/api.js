@@ -7,7 +7,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, 
+  withCredentials: true,
 });
 
 api.interceptors.request.use((config) => {
@@ -94,7 +94,7 @@ export const adminAPI = {
   // Create student
   createStudent: async (studentData) => {
     try {
-      const response = await api.post('/students', studentData);
+      const response = await api.post('/admin/students/batch', studentData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
@@ -114,7 +114,7 @@ export const adminAPI = {
   // Create multiple students
   createMultipleStudents: async (studentsData) => {
     try {
-      const promises = studentsData.map(student => api.post('/students', student));
+      const promises = studentsData.map(student => api.post('/admin/students/batch', student));
       const responses = await Promise.all(promises);
       return responses.map(response => response.data);
     } catch (error) {

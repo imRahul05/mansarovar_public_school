@@ -14,7 +14,7 @@ import noticeRoutes from './routes/noticeRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 import galleryRoutes from './routes/galleryRoutes.js';
 import superAdminRouter from './routes/superAdminRoute.js';
-
+import adminRouter from './routes/adminRoute.js'
 // Load environment variables
 dotenv.config();
 
@@ -55,6 +55,7 @@ app.use(cors({
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/superadmin', superAdminRouter);
+app.use('/api/admin', adminRouter) // @create new
 app.use('/api/students', studentRoutes);
 app.use('/api/teachers', teacherRoutes);
 app.use('/api/notices', noticeRoutes);
@@ -65,7 +66,7 @@ app.use('/api/gallery', galleryRoutes);
 if (process.env.NODE_ENV === 'production') {
   // Set static folder
   app.use(express.static('dist'));
-  
+
   // Any route that is not API will be redirected to index.html
   app.get('*', (req, res) => {
     res.sendFile(join(__dirname, '../dist/index.html'));
