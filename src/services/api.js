@@ -131,6 +131,43 @@ export const adminAPI = {
     } catch (error) {
       throw error.response?.data || error;
     }
+  },
+
+  // Analytics APIs
+  getAnalyticsData: async () => {
+    try {
+      const response = await api.get('/superAdmin/analytics-data');
+      return response.data.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  getUserGrowthData: async (period = '6') => {
+    try {
+      const response = await api.get(`/superAdmin/user-growth?period=${period}`);
+      return response.data.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  getRoleDistribution: async () => {
+    try {
+      const response = await api.get('/superAdmin/role-distribution');
+      return response.data.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  getRecentActivity: async (days = '7') => {
+    try {
+      const response = await api.get(`/superAdmin/recent-activity?days=${days}`);
+      return response.data.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
   }
 };
 
