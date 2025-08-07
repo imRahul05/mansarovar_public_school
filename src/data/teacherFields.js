@@ -20,10 +20,16 @@ export const teacherFields = {
     section: ''
   },
   qualification: '',
-  experience: {
-    years: '',
-    details: ''
-  },
+  experience: [
+    {
+      position: '',
+      organization: '',
+      fromDate: '',
+      toDate: '',
+      isCurrent: false,
+      description: ''
+    }
+  ],
   dateOfJoining: new Date().toISOString().split('T')[0], // Today's date as default
   dateOfBirth: '',
   gender: '',
@@ -70,12 +76,13 @@ export const teacherFormSections = [
     fields: ['employeeId', 'designation', 'subjectsSpecialization', 'qualification', 'dateOfJoining']
   },
   {
-    title: 'Class Teacher Assignment (Optional)',
+    title: 'Assign Teacher to Class (Optional)',
     fields: ['classTeacherOf.class', 'classTeacherOf.section']
   },
   {
-    title: 'Experience',
-    fields: ['experience.years', 'experience.details']
+    title: 'Work Experience',
+    fields: ['experience'], // Special handling for experience array
+    isExperience: true
   },
   {
     title: 'Personal Information',
