@@ -73,6 +73,15 @@ const userSchema = new mongoose.Schema(
   }
 );
 
+// Indexes for better query performance
+userSchema.index({ role: 1 });
+userSchema.index({ isActive: 1 });
+userSchema.index({ isVerified: 1 });
+userSchema.index({ createdAt: 1 });
+userSchema.index({ updatedAt: 1 });
+userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ customID: 1 }, { unique: true, sparse: true });
+
 // Method to check if password matches
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
