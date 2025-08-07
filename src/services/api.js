@@ -104,7 +104,7 @@ export const adminAPI = {
   // Create teacher
   createTeacher: async (teacherData) => {
     try {
-      const response = await api.post('/teachers', teacherData);
+      const response = await api.post('/admin/teachers/batch', teacherData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
@@ -125,7 +125,7 @@ export const adminAPI = {
   // Create multiple teachers
   createMultipleTeachers: async (teachersData) => {
     try {
-      const promises = teachersData.map(teacher => api.post('/teachers', teacher));
+      const promises = teachersData.map(teacher => api.post('/admin/teachers/batch', teacher));
       const responses = await Promise.all(promises);
       return responses.map(response => response.data);
     } catch (error) {
