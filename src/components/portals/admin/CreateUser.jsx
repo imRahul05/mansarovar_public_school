@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Plus, 
   Trash2, 
@@ -21,6 +21,27 @@ const CreateUser = () => {
   }]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+
+  // Handle user type change - reinitialize users with correct template
+  useEffect(() => {
+    const template = userType === 'student' ? studentFields : teacherFields;
+    setUsers([{
+      id: 1,
+      ...template,
+      // Ensure experience array is properly initialized for teachers
+      ...(userType === 'teacher' && {
+        experience: template.experience?.length ? template.experience : [{
+          position: '',
+          organization: '',
+          fromDate: '',
+          toDate: '',
+          isCurrent: false,
+          description: ''
+        }]
+      })
+    }]);
+    setErrors({}); // Clear any existing errors
+  }, [userType]);
 
   // Get current field template based on user type
   const getFieldTemplate = () => {
@@ -46,9 +67,21 @@ const CreateUser = () => {
   };
 
   const addUser = () => {
+    const template = getFieldTemplate();
     const newUser = {
       id: users.length + 1,
-      ...getFieldTemplate()
+      ...template,
+      // Ensure experience array is properly initialized for teachers
+      ...(userType === 'teacher' && {
+        experience: template.experience?.length ? template.experience : [{
+          position: '',
+          organization: '',
+          fromDate: '',
+          toDate: '',
+          isCurrent: false,
+          description: ''
+        }]
+      })
     };
     setUsers([...users, newUser]);
   };
@@ -315,28 +348,214 @@ const CreateUser = () => {
     );
   };
 
+  // Render experience section dynamically
+  const renderExperienceSection = (user) => {
+    const experiences = user.experience || [];
+
+    const addExperience = () => {
+      const newExperience = {
+        position: '',
+        organization: '',
+        fromDate: '',
+        toDate: '',
+        isCurrent: false,
+        description: ''
+      };
+      updateUser(user.id, 'experience', [...experiences, newExperience]);
+    };
+
+    const removeExperience = (index) => {
+      if (experiences.length > 1) {
+        const updatedExperiences = experiences.filter((_, i) => i !== index);
+        updateUser(user.id, 'experience', updatedExperiences);
+      }
+    };
+
+    const updateExperience = (index, field, value) => {
+      const updatedExperiences = experiences.map((exp, i) => 
+        i === index ? { ...exp, [field]: value } : exp
+      );
+      updateUser(user.id, 'experience', updatedExperiences);
+    };
+
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center">
+            {/* <div className="w-3 h-3 rounded-full bg-indigo-400 mr-2"></div>
+            <span className="text-sm font-medium text-gray-800">Work Experience</span> */}
+          </div>
+          <button
+            type="button"
+            onClick={addExperience}
+            className="flex items-center px-3 py-1 text-xs bg-indigo-100 text-indigo-700 rounded-md hover:bg-indigo-200 transition-colors border border-indigo-300"
+          >
+            <Plus className="h-3 w-3 mr-1" />
+            Add Experience
+          </button>
+        </div>
+
+        {experiences.map((experience, index) => (
+          <div key={index} className="border border-indigo-200 rounded-lg p-4 bg-white shadow-sm">
+            <div className="flex justify-between items-center mb-3">
+              <h5 className="text-sm font-medium text-indigo-800 flex items-center">
+                <div className="w-2 h-2 rounded-full bg-indigo-400 mr-2"></div>
+                Experience #{index + 1}
+              </h5>
+              {experiences.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeExperience(index)}
+                  className="flex items-center px-2 py-1 text-xs text-red-600 hover:text-red-800 hover:bg-red-100 rounded border border-red-200"
+                >
+                  <Trash2 className="h-3 w-3 mr-1" />
+                  Remove
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Position/Title <span className="text-red-600">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={experience.position || ''}
+                  onChange={(e) => updateExperience(index, 'position', e.target.value)}
+                  className="block w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="e.g., Mathematics Teacher"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Organization <span className="text-red-600">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={experience.organization || ''}
+                  onChange={(e) => updateExperience(index, 'organization', e.target.value)}
+                  className="block w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="e.g., ABC School"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  From Date <span className="text-red-600">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={experience.fromDate || ''}
+                  onChange={(e) => updateExperience(index, 'fromDate', e.target.value)}
+                  className="block w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  To Date
+                </label>
+                <input
+                  type="date"
+                  value={experience.toDate || ''}
+                  onChange={(e) => updateExperience(index, 'toDate', e.target.value)}
+                  disabled={experience.isCurrent}
+                  className={`block w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 ${
+                    experience.isCurrent ? 'bg-gray-100 cursor-not-allowed' : ''
+                  }`}
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="flex items-center text-xs font-medium text-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={experience.isCurrent || false}
+                    onChange={(e) => {
+                      updateExperience(index, 'isCurrent', e.target.checked);
+                      if (e.target.checked) {
+                        updateExperience(index, 'toDate', '');
+                      }
+                    }}
+                    className="mr-2 h-3 w-3 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  />
+                  Currently working here
+                </label>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Job Description
+                </label>
+                <textarea
+                  value={experience.description || ''}
+                  onChange={(e) => updateExperience(index, 'description', e.target.value)}
+                  rows="2"
+                  className="block w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 resize-none"
+                  placeholder="Brief description of responsibilities and achievements..."
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   // Render form sections dynamically
   const renderFormSections = (user) => {
     const sections = getFormSections();
     
-    return sections.map((section, index) => (
-      <div key={index} className="space-y-4">
-        <h4 className="text-sm font-medium text-gray-700 border-b border-gray-200 pb-2">
-          {section.title}
-        </h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {section.fields.map(field => (
-            <div key={field} className={
-              field.includes('address.street') || field.includes('details') || field === 'medicalConditions'
-                ? 'md:col-span-2' 
-                : ''
-            }>
-              {renderField(user, field)}
+    // Array of background colors for different sections
+    const sectionColors = [
+      'bg-blue-50 border-blue-200',     // Personal Information
+      'bg-green-50 border-green-200',   // Academic/Professional Details
+      'bg-purple-50 border-purple-200', // Contact Information
+      'bg-orange-50 border-orange-200', // Additional Details
+      'bg-indigo-50 border-indigo-200', // Experience/Medical
+      'bg-pink-50 border-pink-200',     // Emergency/Guardian
+      'bg-yellow-50 border-yellow-200', // Other sections
+    ];
+    
+    return sections.map((section, index) => {
+      const colorClass = sectionColors[index % sectionColors.length];
+      
+      return (
+        <div key={index} className={`p-4 rounded-lg border ${colorClass} space-y-4`}>
+          <h4 className="text-sm font-medium text-gray-800 border-b border-gray-300 pb-2 flex items-center">
+            <div className={`w-3 h-3 rounded-full mr-2 ${
+              index % sectionColors.length === 0 ? 'bg-blue-400' :
+              index % sectionColors.length === 1 ? 'bg-green-400' :
+              index % sectionColors.length === 2 ? 'bg-purple-400' :
+              index % sectionColors.length === 3 ? 'bg-orange-400' :
+              index % sectionColors.length === 4 ? 'bg-indigo-400' :
+              index % sectionColors.length === 5 ? 'bg-pink-400' :
+              'bg-yellow-400'
+            }`}></div>
+            {section.title}
+          </h4>
+          
+          {/* Special handling for experience section */}
+          {section.isExperience ? (
+            renderExperienceSection(user)
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {section.fields.map(field => (
+                <div key={field} className={
+                  field.includes('address.street') || field.includes('details') || field === 'medicalConditions'
+                    ? 'md:col-span-2' 
+                    : ''
+                }>
+                  {renderField(user, field)}
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
-      </div>
-    ));
+      );
+    });
   };
 
   return (
@@ -461,7 +680,7 @@ const CreateUser = () => {
             <div className="mt-2 text-sm text-blue-700">
               <ul className="list-disc list-inside space-y-1">
                 <li>All {userType}s will be created according to the backend API structure.</li>
-                <li>Required fields are marked with an asterisk (*).</li>
+                <li>Required fields are marked with an asterisk (<span className='text-red-700 text-lg'>*</span>).</li>
                 <li>For students: Academic year and admission details are required.</li>
                 <li>For teachers: Employee ID and subject specialization are required.</li>
                 <li>Passwords should be shared securely with the users after creation.</li>

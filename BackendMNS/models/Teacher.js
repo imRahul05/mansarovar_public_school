@@ -28,10 +28,30 @@ const teacherSchema = new mongoose.Schema(
       type: String,
       required: true
     },
-    experience: {
-      years: Number,
-      details: String
-    },
+    experience: [{
+      position: {
+        type: String,
+        required: true
+      },
+      organization: {
+        type: String,
+        required: true
+      },
+      fromDate: {
+        type: Date,
+        required: true
+      },
+      toDate: {
+        type: Date
+      },
+      isCurrent: {
+        type: Boolean,
+        default: false
+      },
+      description: {
+        type: String
+      }
+    }],
     dateOfJoining: {
       type: Date,
       default: Date.now,
