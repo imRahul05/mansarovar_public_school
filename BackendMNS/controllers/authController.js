@@ -199,11 +199,11 @@ export const loginUser = async (req, res) => {
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET || "your-secret-key",
-      { expiresIn: "30d" }
+      { expiresIn: "7d" }
     );
 
     // Set token cookie
-    res.cookie("token", jwtToken, {
+    res.cookie("token", token, {
       httpOnly: true, // safer from XSS
       secure: true, // required for SameSite=None in Safari
       sameSite: "None", // allow cross-site requests (for APIs on a different domain)
