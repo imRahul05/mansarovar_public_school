@@ -210,8 +210,8 @@ adminRouter.get("/analytics-data", protect, authorizeRoles('admin'), async (req,
 })
 
 // all user's credential's
-adminRouter.get('/all-userData', protect, authorizeRoles('admin'), async (req, res) => {
-    const data = await User.find()
+adminRouter.get('/all-users', protect, authorizeRoles('admin'), async (req, res) => {
+    const data = await User.find({ role: { $nin: ['admin', 'superAdmin'] } })
     return res.status(200).json({ message: "All data from users", data })
 })
 
