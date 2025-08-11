@@ -199,15 +199,16 @@ export const loginUser = async (req, res) => {
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET || "your-secret-key",
-      { expiresIn: "30d" }
+      { expiresIn: "7d" }
     );
 
     // Set token cookie
     res.cookie("token", token, {
-      httpOnly: true,
-      secure: true, // Always true in production
-      sameSite: "None", // Must be 'None' for cross-site cookie usage
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      httpOnly: true, // safer from XSS
+      secure: true, // required for SameSite=None in Safari
+      sameSite: "None", // allow cross-site requests (for APIs on a different domain)
+      path: "/", // allow full-site access
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
     });
 
     // Return successful response with user data and token
@@ -397,21 +398,21 @@ export const forgotPassword = async (req, res) => {
 
 export const getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select('-password');
-    
+    const user = await User.findById(req.user._id).select("-password");
+
     res.status(200).json({
       success: true,
-      user
+      user,
     });
   } catch (error) {
-    console.error('Get user profile error:', error);
+    console.error("Get user profile error:", error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: "Server error",
+      error: error.message,
     });
   }
-}
+};
 
 export const resetPassword = async (req, res) => {
   try {
