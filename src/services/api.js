@@ -166,6 +166,15 @@ export const adminAPI = {
     }
   },
 
+  getAllUserAccessByAdmin: async () => {
+    try {
+      const response = await api.get('admin/all-users')
+      return response.data.data
+    } catch (error) {
+      throw error.response?.data || error
+    }
+  },
+
   // get recent-activity by role= Admin
   getRecentActivityByAdmin: async (days = '7') => {
     try {
