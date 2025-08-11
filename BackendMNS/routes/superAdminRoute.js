@@ -12,12 +12,12 @@ const superAdminRouter = express.Router();
 
 //@api/superadmin
 
-superAdminRouter.get('/users', protect, authorizeRoles('admin', 'superadmin'),getAllUsers );
+superAdminRouter.get('/users', protect, authorizeRoles('admin', 'superadmin'), getAllUsers);
 
 superAdminRouter.get('/unverified-users', protect, authorizeRoles('superadmin'), getUnverifiedUsers);
 
 
-superAdminRouter.put('/verify/:id',protect, authorizeRoles('superadmin'),verifyUser);
+superAdminRouter.put('/verify/:id', protect, authorizeRoles('superadmin'), verifyUser);
 
 
 superAdminRouter.put('/users/:id/status', protect, authorizeRoles('superadmin'), userStatusUpdate);
@@ -25,7 +25,7 @@ superAdminRouter.put('/users/:id/status', protect, authorizeRoles('superadmin'),
 superAdminRouter.delete('/users/:id', protect, authorizeRoles('superadmin'), deleteUserByID);
 
 
-superAdminRouter.get('/users/:id', protect, authorizeRoles('superadmin'),getUserDetailsByID);
+superAdminRouter.get('/users/:id', protect, authorizeRoles('superadmin'), getUserDetailsByID);
 
 superAdminRouter.get('/analytics-data', protect, authorizeRoles('superadmin'), async (req, res) => {
   try {
@@ -34,21 +34,21 @@ superAdminRouter.get('/analytics-data', protect, authorizeRoles('superadmin'), a
     const inactiveUsers = await User.countDocuments({ isActive: false });
     const verifiedUsers = await User.countDocuments({ isVerified: true });
     const unverifiedUsers = await User.countDocuments({ isVerified: false });
-    
+
     // Get user registrations from last month
     const lastMonth = new Date();
     lastMonth.setMonth(lastMonth.getMonth() - 1);
-    
+
     const newRegistrationsLastMonth = await User.countDocuments({
       createdAt: { $gte: lastMonth }
     });
-    
+
     // Get verified users from last month
     const verifiedUsersLastMonth = await User.countDocuments({
       isVerified: true,
       updatedAt: { $gte: lastMonth }
     });
-    
+
     // User roles distribution
     const roleDistribution = await User.aggregate([
       {
@@ -58,7 +58,7 @@ superAdminRouter.get('/analytics-data', protect, authorizeRoles('superadmin'), a
         }
       }
     ]);
-    
+
     // User growth data (last 6 months)
     const userGrowthData = [];
     for (let i = 5; i >= 0; i--) {
@@ -66,14 +66,14 @@ superAdminRouter.get('/analytics-data', protect, authorizeRoles('superadmin'), a
       date.setMonth(date.getMonth() - i);
       const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
       const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-      
+
       const monthlyRegistrations = await User.countDocuments({
         createdAt: {
           $gte: startOfMonth,
           $lte: endOfMonth
         }
       });
-      
+
       const monthlyVerifications = await User.countDocuments({
         isVerified: true,
         updatedAt: {
@@ -81,14 +81,14 @@ superAdminRouter.get('/analytics-data', protect, authorizeRoles('superadmin'), a
           $lte: endOfMonth
         }
       });
-      
+
       userGrowthData.push({
         month: startOfMonth.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
         registrations: monthlyRegistrations,
         verifications: monthlyVerifications
       });
     }
-    
+
     res.status(200).json({
       success: true,
       data: {
@@ -121,24 +121,20 @@ superAdminRouter.get('/analytics-data', protect, authorizeRoles('superadmin'), a
 // Get user growth data for charts
 superAdminRouter.get('/user-growth', protect, authorizeRoles('superadmin'), async (req, res) => {
   try {
-    const { period = '6' } = req.query; // Default to 6 months
+    const { period = '6' } = req.query;
     const monthsBack = parseInt(period);
-    
     const userGrowthData = [];
-    
     for (let i = monthsBack - 1; i >= 0; i--) {
       const date = new Date();
       date.setMonth(date.getMonth() - i);
       const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
       const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-      
       const monthlyRegistrations = await User.countDocuments({
         createdAt: {
           $gte: startOfMonth,
           $lte: endOfMonth
         }
       });
-      
       const monthlyVerifications = await User.countDocuments({
         isVerified: true,
         updatedAt: {
@@ -146,11 +142,11 @@ superAdminRouter.get('/user-growth', protect, authorizeRoles('superadmin'), asyn
           $lte: endOfMonth
         }
       });
-      
+
       const cumulativeUsers = await User.countDocuments({
         createdAt: { $lte: endOfMonth }
       });
-      
+
       userGrowthData.push({
         month: startOfMonth.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
         registrations: monthlyRegistrations,
@@ -158,7 +154,7 @@ superAdminRouter.get('/user-growth', protect, authorizeRoles('superadmin'), asyn
         cumulative: cumulativeUsers
       });
     }
-    
+
     res.status(200).json({
       success: true,
       data: userGrowthData
@@ -176,7 +172,7 @@ superAdminRouter.get('/user-growth', protect, authorizeRoles('superadmin'), asyn
 superAdminRouter.get('/role-distribution', protect, authorizeRoles('superadmin'), async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
-    
+
     const roleDistribution = await User.aggregate([
       {
         $group: {
@@ -188,13 +184,13 @@ superAdminRouter.get('/role-distribution', protect, authorizeRoles('superadmin')
         $sort: { count: -1 }
       }
     ]);
-    
+
     const distributionData = roleDistribution.map(role => ({
       role: role._id,
       count: role.count,
       percentage: parseFloat(((role.count / totalUsers) * 100).toFixed(1))
     }));
-    
+
     res.status(200).json({
       success: true,
       data: {
@@ -218,22 +214,22 @@ superAdminRouter.get('/recent-activity', protect, authorizeRoles('superadmin'), 
     const daysBack = parseInt(days);
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - daysBack);
-    
+
     const recentRegistrations = await User.find({
       createdAt: { $gte: startDate }
     })
-    .select('name email role createdAt isVerified')
-    .sort({ createdAt: -1 })
-    .limit(10);
-    
+      .select('name email role createdAt isVerified')
+      .sort({ createdAt: -1 })
+      .limit(10);
+
     const recentVerifications = await User.find({
       isVerified: true,
       updatedAt: { $gte: startDate }
     })
-    .select('name email role updatedAt')
-    .sort({ updatedAt: -1 })
-    .limit(10);
-    
+      .select('name email role updatedAt')
+      .sort({ updatedAt: -1 })
+      .limit(10);
+
     res.status(200).json({
       success: true,
       data: {
@@ -248,5 +244,6 @@ superAdminRouter.get('/recent-activity', protect, authorizeRoles('superadmin'), 
       message: 'Server error while fetching recent activity data'
     });
   }
-}); 
+});
+
 export default superAdminRouter;
