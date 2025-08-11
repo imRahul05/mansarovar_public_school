@@ -23,6 +23,20 @@
 
 This project is a comprehensive school management system and website for Mansarovar Public School, designed to serve various stakeholders including students, parents, teachers, and administrators. The application includes both public-facing pages and authenticated portals for different user types.
 
+### 🏗️ System Architecture
+
+<div align="center">
+  <img src="src/assets/images/architecture.png" alt="System Architecture" width="800" />
+  <p><em>High-level system architecture showing frontend, backend, and database layers</em></p>
+</div>
+
+### 📊 Project Flow Diagram
+
+<div align="center">
+  <img src="src/assets/images/diagram.png" alt="Project Flow Diagram" width="800" />
+  <p><em>User flow and data architecture diagram</em></p>
+</div>
+
 ## ✨ Features
 
 ### Public Pages
