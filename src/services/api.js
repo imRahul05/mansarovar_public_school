@@ -50,6 +50,7 @@ export const superAdminAPI = {
   },
 
   // Verify user
+
   verifyUser: async (id) => {
     try {
       const response = await api.put(`/superAdmin/verify/${id}`);
@@ -104,7 +105,7 @@ export const adminAPI = {
   // Create teacher
   createTeacher: async (teacherData) => {
     try {
-      const response = await api.post('/teachers', teacherData);
+      const response = await api.post('/admin/teachers/batch', teacherData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
@@ -125,9 +126,51 @@ export const adminAPI = {
   // Create multiple teachers
   createMultipleTeachers: async (teachersData) => {
     try {
-      const promises = teachersData.map(teacher => api.post('/teachers', teacher));
+      const promises = teachersData.map(teacher => api.post('/admin/teachers/batch', teacher));
       const responses = await Promise.all(promises);
       return responses.map(response => response.data);
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  // Analytics APIs
+  getAnalyticsDataByAdmin: async () => {
+    try {
+      const response = await api.get('/admin/analytics-data');
+      //console.log("dbejbd", response.data.data)
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  // get user growth by role= Admin
+  getUserGrowthDataByAdmin: async (period = '6') => {
+    try {
+      const response = await api.get(`/admin/user-growth?period=${period}`);
+      console.log(response.data.data)
+      return response.data.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  // role-distribution by role= Admin
+  getRoleDistributionByAdmin: async () => {
+    try {
+      const response = await api.get('/admin/role-distribution');
+      return response.data.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  // get recent-activity by role= Admin
+  getRecentActivityByAdmin: async (days = '7') => {
+    try {
+      const response = await api.get(`/admin/recent-activity?days=${days}`);
+      return response.data.data;
     } catch (error) {
       throw error.response?.data || error;
     }
@@ -137,15 +180,18 @@ export const adminAPI = {
   getAnalyticsData: async () => {
     try {
       const response = await api.get('/superAdmin/analytics-data');
+      console.log(response.data)
       return response.data.data;
     } catch (error) {
       throw error.response?.data || error;
     }
   },
 
+
   getUserGrowthData: async (period = '6') => {
     try {
       const response = await api.get(`/superAdmin/user-growth?period=${period}`);
+      console.log(response.data.data)
       return response.data.data;
     } catch (error) {
       throw error.response?.data || error;
