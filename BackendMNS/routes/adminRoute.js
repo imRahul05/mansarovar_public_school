@@ -189,7 +189,240 @@ adminRouter.post('/teachers/batch', protect, authorizeRoles('admin', 'superadmin
     }
 });
 
-// allow Role = Admin to Fetching all list's of STUDENTS and TEACHERS
+
+// all user's credential's
+adminRouter.get('/all-users', protect, authorizeRoles('admin'), async (req, res) => {
+    const data = await User.find({ role: { $nin: ['admin', 'superAdmin'] } })
+    return res.status(200).json({ message: "All data from users", data })
+})
+
+// lists of all Pending User Verifications
+adminRouter.get("/unverified-users", protect, authorizeRoles("admin"), async (req, res) => {
+    try {
+        const unverifiedUsers = await User.find({ isVerified: false }).select(
+            "-password"
+        );
+        res.status(200).json({
+            success: true,
+            count: unverifiedUsers.length,
+            users: unverifiedUsers,
+        });
+    } catch (error) {
+        console.error("Get unverified users error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message,
+        });
+    }
+});
+
+// mark User As Verified 
+adminRouter.put("/verify/:id", protect, authorizeRoles("admin"), async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+        if (user.isVerified) {
+            return res.status(400).json({
+                success: false,
+                message: `User ${user.name} is already verified and cannot be unverified or verified again.`,
+            });
+        }
+
+        // Mark the user as verified
+        user.isVerified = true;
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: `User ${user.name} has been verified.`,
+        });
+    } catch (error) {
+        console.error("Verify user error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message,
+        });
+    }
+});
+
+// mark User As isActive= true
+adminRouter.put("/users/:id/status", protect, authorizeRoles("admin"), async (req, res) => {
+    try {
+        const { isActive } = req.body;
+        const user = await User.findById(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        user.isActive = isActive;
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: `User ${user.name} has been ${isActive ? "activated" : "deactivated"
+                }.`,
+        });
+    } catch (error) {
+        console.error("Update user status error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message,
+        });
+    }
+});
+
+// delete specific User's Account, also prevent user's to delete their own account permanently
+adminRouter.delete("/users/:id", protect, authorizeRoles("admin"), async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        // Prevent user to delete account from deleting themselves.
+        if (user._id.toString() === req.user._id.toString()) {
+            return res.status(400).json({
+                success: false,
+                message: "You cannot delete your own account",
+            });
+        }
+
+        await User.findByIdAndDelete(req.params.id);
+
+        res.status(200).json({
+            success: true,
+            message: `User ${user.name} has been deleted.`,
+        });
+    } catch (error) {
+        console.error("Delete user error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message,
+        });
+    }
+});
+
+// get User Details By Id
+adminRouter.get("/users/:id", protect, authorizeRoles("admin"), async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id).select("-password");
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        let additionalDetail = null;
+
+        if (user.role === "student") {
+            additionalDetail = await Student.findOne({ user: req.params.id });
+        } else if (user.role === "teacher") {
+            additionalDetail = await Teacher.findOne({ user: req.params.id });
+        }
+
+        res.status(200).json({
+            success: true,
+            user,
+            role: user.role,
+            additionalDetail,
+        });
+    } catch (error) {
+        console.error("Get user error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message,
+        });
+    }
+});
+
+adminRouter.put("/users/:id/update", protect, authorizeRoles("admin"), async (req, res) => {
+    try {
+        const { name, email, contactNumber, role, address, ...additionalFields } = req.body;
+
+        // Find the user
+        const user = await User.findById(req.params.id).select("-password");
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        // Update User fields if provided
+        if (name) user.name = name;
+        if (email) user.email = email;
+        if (contactNumber) user.contactNumber = contactNumber;
+        if (role) user.role = role; // Optionally allow role update, or restrict it
+        if (address) user.address = address;
+
+        await user.save();
+
+        // Update role-specific additional details
+        let additionalDetail = null;
+        if (user.role === "student") {
+            additionalDetail = await Student.findOneAndUpdate(
+                { user: req.params.id },
+                additionalFields,
+                { new: true }
+            );
+        } else if (user.role === "teacher") {
+            additionalDetail = await Teacher.findOneAndUpdate(
+                { user: req.params.id },
+                additionalFields,
+                { new: true }
+            );
+        } else if (user.role === "admin") {
+            // Optionally handle admin-specific details if an Admin model exists
+            // For now, assume no additional details for admin
+            additionalDetail = null;
+        }
+
+        res.json({ success: true, user, role: user.role, additionalDetail });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// // allow user to update data 
+// adminRouter.put("/users/:id/update", protect, authorizeRoles("admin"), async (req, res) => {
+//     try {
+//         const { ...body } = req.body;
+//         const user = await User.findById(req.params.id).select("-password");
+//         if (!user) return res.status(404).json({ success: false, message: "User not found" });
+//         // Update User fields
+//         await user.save();
+//         // Update role-specific
+//         let additionalDetail;
+//         if (user.role === "student") {
+//             additionalDetail = await Student.findOneAndUpdate({ user: req.params.id }, body, { new: true });
+//         } else if (user.role === "teacher") {
+//             additionalDetail = await Teacher.findOneAndUpdate({ user: req.params.id }, body, { new: true });
+//         }
+//         res.json({ success: true, user, role: user.role, additionalDetail });
+//     } catch (err) {
+//         res.status(500).json({ success: false, error: err.message });
+//     }
+// });
+
+
+// allow role = Admin to Fetching all list's of STUDENTS and TEACHERS
 adminRouter.get("/analytics-data", protect, authorizeRoles('admin'), async (req, res) => {
     try {
         const userID = req.user._id
@@ -207,12 +440,6 @@ adminRouter.get("/analytics-data", protect, authorizeRoles('admin'), async (req,
         console.log("An error occurred while attempting to fetch all teachers and students data from the database.", error);
         return res.status(500).json({ message: "An error occurred while attempting to fetch all teachers and students data.", error })
     }
-})
-
-// all user's credential's
-adminRouter.get('/all-users', protect, authorizeRoles('admin'), async (req, res) => {
-    const data = await User.find({ role: { $nin: ['admin', 'superAdmin'] } })
-    return res.status(200).json({ message: "All data from users", data })
 })
 
 // Get user growth data data for pie chart, role = Admin
@@ -265,8 +492,6 @@ adminRouter.get('/user-growth', protect, authorizeRoles('admin'), async (req, re
         });
     }
 });
-
-
 
 // Get role distribution data for pie chart, roles = admin and superadmin
 adminRouter.get('/role-distribution', protect, authorizeRoles('admin'), async (req, res) => {
@@ -355,6 +580,7 @@ adminRouter.get('/recent-activity', protect, authorizeRoles('admin'), async (req
         });
     }
 });
+
 
 
 export default adminRouter;

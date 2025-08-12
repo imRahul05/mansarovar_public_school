@@ -50,7 +50,6 @@ export const superAdminAPI = {
   },
 
   // Verify user
-
   verifyUser: async (id) => {
     try {
       const response = await api.put(`/superAdmin/verify/${id}`);
@@ -83,6 +82,101 @@ export const superAdminAPI = {
   getUnverifiedUsers: async () => {
     try {
       const response = await api.get('/superAdmin/unverified-users');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  }
+};
+
+
+export const AdminControlAPI = {
+  // Get all users
+  getUsers: async () => {
+    try {
+      const response = await api.get('/admin/users');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  // Get user by ID
+  getUserById: async (id) => {
+    try {
+      const response = await api.get(`/admin/users/${id}`);
+      return response.data;
+    } catch (error) {
+      try {
+        const allUsersResponse = await api.get('/admin/users');
+        if (allUsersResponse.data.success) {
+          const user = allUsersResponse.data.users.find(u => u._id === id);
+          if (user) {
+            return { success: true, user };
+          } else {
+            throw new Error('User not found');
+          }
+        }
+        throw error.response?.data || error;
+      } catch (fallbackError) {
+        throw fallbackError.response?.data || fallbackError;
+      }
+    }
+  },
+
+  // update Specific User Details; Method = PUT, role= Admin
+  updateSpecificUserDetail: async (id, payload) => {
+    try {
+      const response = await api.put(`/admin/users/${id}/update`, payload);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+  // // update Specific User Details; Method = PUT, role= Admin
+  // updateSpecificUserDetail: async (id) => {
+  //   try {
+  //     const response = await api.put(`/admin/users/${id}/update`);
+  //     return response.data;
+  //   } catch (error) {
+  //     throw error.response?.data || error;
+  //   }
+  // },
+
+  // Verify user
+  verifyUser: async (id) => {
+    try {
+      const response = await api.put(`/admin/verify/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  // mark User As isActive= true
+  updateUserStatus: async (id, isActive) => {
+    try {
+      const response = await api.put(`/admin/users/${id}/status`, { isActive });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  // Delete specific User's Account, also prevent user's to delete their own account permanently
+  deleteUser: async (id) => {
+    try {
+      const response = await api.delete(`/admin/users/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  // Get unverified users
+  getUnverifiedUsers: async () => {
+    try {
+      const response = await api.get('/admin/unverified-users');
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
