@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import { adminAPI } from '@/services/api';
-
+import { Link } from 'react-router-dom';
+import {AdminControlAPI} from '@/services/api';
+import { Eye} from 'lucide-react';
 const UserList = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -89,19 +91,19 @@ const UserList = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
-                  User
+                  USER
                 </th>
                 <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
-                  Role
+                  ROLE
                 </th>
                 <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
-                  Details
+                  STATUS
                 </th>
                 <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
-                  Status
+                  JOINED
                 </th>
-                <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
-                  Created
+                 <th className="px-3 sm:px-4 md:px-6 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
+                  ACTIONS
                 </th>
               </tr>
             </thead>
@@ -126,15 +128,7 @@ const UserList = () => {
                       {user.role}
                     </span>
                   </td>
-                  <td className="px-3 sm:px-4 md:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {user.role === 'student' && user.studentClass && (
-                      <div>Class {user.studentClass}-{user.section}</div>
-                    )}
-                    {user.role === 'teacher' && user.subject && (
-                      <div>{user.subject}</div>
-                    )}
-                  </td>
-                  <td className="px-3 sm:px-4 md:px-6 py-4 whitespace-nowrap">
+                   <td className="px-3 sm:px-4 md:px-6 py-4 whitespace-nowrap">
                     <span
                       className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                         user.isVerified
@@ -145,11 +139,23 @@ const UserList = () => {
                       {user.isVerified ? 'Verified' : 'Pending Verification'}
                     </span>
                   </td>
-                  <td className="px-3 sm:px-4 md:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  
+                   <td className="px-3 sm:px-4 md:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(user.createdAt).toLocaleDateString()}
+                  </td>
+                 {/* Actions */}
+                 <td className="px-3 sm:px-4 md:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <Link
+                      to={`/portal/admin/users/${user._id}`}
+                      className="text-blue-600 hover:text-blue-900"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Link>
+
                   </td>
                 </tr>
               ))}
+              
             </tbody>
           </table>
         </div>

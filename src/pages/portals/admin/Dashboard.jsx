@@ -4,6 +4,9 @@ import CreateUser from '../../../components/portals/admin/CreateUser';
 import UserList from '../../../components/portals/admin/UserList';
 import Analytics from '../../../components/portals/admin/Analytics';
 import Settings from '../../../components/portals/admin/Settings';
+// import UserDetails from '@/components/portals/admin/UserDetails';
+
+import UserDetails from '../../../components/portals/admin/UserDetails';
 
 const AdminDashboard = () => {
   return (
@@ -24,6 +27,7 @@ const AdminDashboard = () => {
               <Route index element={<CreateUser />} />
               <Route path="create-user" element={<CreateUser />} />
               <Route path="users" element={<UserList />} />
+              <Route path="users/:id" element={<UserDetails/>} />
               <Route path="analytics" element={<Analytics />} />
               <Route path="settings" element={<Settings />} />
             </Routes>

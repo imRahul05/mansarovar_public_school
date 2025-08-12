@@ -64,7 +64,7 @@ superAdminRouter.get(
   "/analytics-data",
   protect,
   authorizeRoles("superadmin"),
-  getAnalyticsData
+
 );
 
 // Get user growth data for charts
@@ -80,7 +80,7 @@ superAdminRouter.get(
   "/role-distribution",
   protect,
   authorizeRoles("superadmin"),
- getRoleDistribution
+  getRoleDistribution
 );
 
 // Get recent activity data

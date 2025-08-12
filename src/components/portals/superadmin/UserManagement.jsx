@@ -42,7 +42,6 @@ const UserManagement = () => {
         setLoading(false);
       }
     };
-
     fetchUsers();
   }, []);
 
