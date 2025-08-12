@@ -20,18 +20,34 @@ const RoleDistributionChart = ({ data }) => {
     type: 'pie',
     textinfo: 'label+percent',
     textposition: 'outside',
+    textfont: {
+      size: 12,
+      color: '#374151'
+    },
     marker: {
       colors: colors.slice(0, data.distribution.length)
     },
-    hole: 0.4
+    hole: 0.4,
+    // pull: 0.05
   }];
 
   const layout = {
-    title: 'User Roles Distribution',
-    margin: { t: 60, b: 40, l: 40, r: 40 },
-    height: 350,
+    title: {
+      text: 'User Roles Distribution',
+      font: { size: 16, color: '#1F2937' }
+    },
+    margin: { t: 80, b: 80, l: 80, r: 80 },
+    height: 400,
     showlegend: true,
-    legend: { x: 0, y: 0 }
+    legend: { 
+      x: 0, 
+      y: -0.1,
+      orientation: 'h',
+      xanchor: 'left'
+    },
+    font: {
+      family: 'Inter, system-ui, sans-serif'
+    }
   };
 
   return (

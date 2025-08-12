@@ -4,7 +4,7 @@ import { Users, GraduationCap, Activity, TrendingUp, RefreshCw, UserCheck, BarCh
 import Plot from 'react-plotly.js';
 import LoadingSpinner from '../../common/LoadingSpinner';
 
-// AnalyticsHeader Component
+
 const AnalyticsHeader = () => {
   return (
     <div className="flex items-center">
