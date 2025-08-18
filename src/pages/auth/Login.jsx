@@ -233,14 +233,14 @@ const Login = () => {
           </div>
         </div>
 
-        <div className="mt-4 text-center">
+        {/* <div className="mt-4 text-center">
           <p className="text-sm text-gray-600">
             Don't have an account?{' '}
             <Link to="/auth/register" className="font-medium text-blue-600 hover:text-blue-500">
               Register here
             </Link>
           </p>
-        </div>
+        </div> */}
         
         <div className="mt-6 text-center">
           <Link to="/" className="font-medium text-sm text-blue-600 hover:text-blue-500">
