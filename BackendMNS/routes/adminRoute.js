@@ -355,6 +355,8 @@ adminRouter.get("/users/:id", protect, authorizeRoles("admin"), async (req, res)
     }
 });
 
+
+// update user detail's by role= Admin, by providing id
 adminRouter.put("/users/:id/update", protect, authorizeRoles("admin"), async (req, res) => {
     try {
         const { name, email, contactNumber, role, address, ...additionalFields } = req.body;
@@ -400,47 +402,264 @@ adminRouter.put("/users/:id/update", protect, authorizeRoles("admin"), async (re
     }
 });
 
-// // allow user to update data 
-// adminRouter.put("/users/:id/update", protect, authorizeRoles("admin"), async (req, res) => {
-//     try {
-//         const { ...body } = req.body;
-//         const user = await User.findById(req.params.id).select("-password");
-//         if (!user) return res.status(404).json({ success: false, message: "User not found" });
-//         // Update User fields
-//         await user.save();
-//         // Update role-specific
-//         let additionalDetail;
-//         if (user.role === "student") {
-//             additionalDetail = await Student.findOneAndUpdate({ user: req.params.id }, body, { new: true });
-//         } else if (user.role === "teacher") {
-//             additionalDetail = await Teacher.findOneAndUpdate({ user: req.params.id }, body, { new: true });
-//         }
-//         res.json({ success: true, user, role: user.role, additionalDetail });
-//     } catch (err) {
-//         res.status(500).json({ success: false, error: err.message });
-//     }
-// });
 
-
-// allow role = Admin to Fetching all list's of STUDENTS and TEACHERS
-adminRouter.get("/analytics-data", protect, authorizeRoles('admin'), async (req, res) => {
+adminRouter.get("/analytics-data", protect, authorizeRoles("admin"), async (req, res) => {
     try {
-        const userID = req.user._id
-        const user = await User.findOne(userID)
+        const userID = req.user._id;
+        const user = await User.findOne(userID);
         if (!user) {
-            return res.status(404).json({ message: `Admin With userID:${userID} access denied: user not found in the database.` })
+            return res.status(404).json({
+                message: `Admin With userID:${userID} access denied: user not found in the database.`,
+            });
         }
-        const allTeachers = await Teacher.find()
-        const teacherCount = await Teacher.find().countDocuments()
-        const allStudents = await Student.find()
-        const studentCount = await Student.find().countDocuments()
-        console.log(allTeachers.length, allStudents.length)
-        return res.status(200).json({ message: "Fetching all teachers and students for admin view.", allTeachers, allStudents, Total_Student_Count: teacherCount, Total_Teacher_Count: studentCount })
+
+        // Existing queries
+        const allTeachers = await Teacher.find(); // all listed teachers
+        const teacherCount = await Teacher.find().countDocuments(); // teacher count
+        const allStudents = await Student.find(); // all students
+        const studentCount = await Student.find().countDocuments(); // student count
+
+        // -----------------------------
+        // ANALYTICS QUERIES
+        // -----------------------------
+        // =====================
+        // 1. Female vs Male Students in Each Class
+        // =====================
+        const femaleVsMaleStudents = await Student.aggregate([
+            {
+                $group: {
+                    _id: "$class",
+                    male: { $sum: { $cond: [{ $eq: ["$gender", "Male"] }, 1, 0] } },
+                    female: { $sum: { $cond: [{ $eq: ["$gender", "Female"] }, 1, 0] } },
+                    other: { $sum: { $cond: [{ $eq: ["$gender", "Other"] }, 1, 0] } }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    class: "$_id",
+                    male: 1,
+                    female: 1,
+                    other: 1
+                }
+            },
+            { $sort: { class: 1 } }
+        ])
+
+        // =====================
+        // 2. Female vs Male Teachers per Class
+        // =====================
+        const femaleVsMaleTeachers = await Teacher.aggregate([
+            // Step 1: Normalize class and gender
+            {
+                $project: {
+                    class: { $ifNull: ["$classTeacherOf.class", "Unassigned"] },
+                    gender: { $toLower: "$gender" }
+                }
+            },
+            // Step 2: Group by class and gender
+            {
+                $group: {
+                    _id: { class: "$class", gender: "$gender" },
+                    count: { $sum: 1 }
+                }
+            },
+            // Step 3: Group by class to pivot gender counts
+            {
+                $group: {
+                    _id: "$_id.class",
+                    male: {
+                        $sum: {
+                            $cond: [{ $eq: ["$_id.gender", "male"] }, "$count", 0]
+                        }
+                    },
+                    female: {
+                        $sum: {
+                            $cond: [{ $eq: ["$_id.gender", "female"] }, "$count", 0]
+                        }
+                    },
+                    other: {
+                        $sum: {
+                            $cond: [
+                                { $not: { $in: ["$_id.gender", ["male", "female"]] } },
+                                "$count",
+                                0
+                            ]
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    class: "$_id",
+                    male: 1,
+                    female: 1,
+                    other: 1
+                }
+            },
+            // Step 4: Sort by class
+            {
+                $sort: { _id: 1 }
+            }
+        ]);
+
+        // =====================
+        // 3. Teacher-to-Student Ratio per Class
+        // =====================
+        // Aggregate students per class
+        const studentCounts = await Student.aggregate([
+            {
+                $match: { class: { $ne: null } } // Ensure class is not null
+            },
+            {
+                $group: {
+                    _id: "$class",
+                    totalStudents: { $sum: 1 }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+
+        // Aggregate teachers per classTeacherOf.class
+        const teacherCounts = await Teacher.aggregate([
+            {
+                $match: { "classTeacherOf.class": { $ne: null } } // Ensure classTeacherOf.class is not null
+            },
+            {
+                $group: {
+                    _id: "$classTeacherOf.class",
+                    totalTeachers: { $sum: 1 }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+
+        // Manually compute teacher-to-student ratio
+        const teacherStudentRatio = studentCounts.map(student => {
+            const teacher = teacherCounts.find(t => t._id === student._id) || { totalTeachers: 0 };
+            return {
+                class: student._id,
+                totalStudents: student.totalStudents,
+                totalTeachers: teacher.totalTeachers,
+                ratio: teacher.totalTeachers > 0 ? (student.totalStudents / teacher.totalTeachers) : null
+            };
+        });
+
+        // =====================
+        // 4. Academic Year Trend Analysis (Students)
+        // =====================
+        const academicYearTrends = await Student.aggregate([
+            {
+                $match: {
+                    admissionDate: {
+                        $gte: new Date("2021-01-01T00:00:00.000Z"),
+                        $lte: new Date("2025-12-31T23:59:59.999Z")
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: { $year: "$admissionDate" },
+                    studentCount: { $sum: 1 }
+                }
+            },
+            {
+                $sort: { _id: 1 }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    year: "$_id",
+                    studentCount: 1
+                }
+            }
+        ]);
+
+        // =====================
+        // 5. Teacher Joining Trends (per Year)
+        // =====================
+        const teacherJoinTrends = await Teacher.aggregate([
+            {
+                $group: {
+                    _id: { year: { $year: "$dateOfJoining" } },
+                    teacherCount: { $sum: 1 }
+                }
+            },
+            { $sort: { "_id.year": 1 } }
+        ]);
+
+        // =====================
+        // 6. Class Strength & Age Distribution (Class Level)
+        // =====================
+        const classStrengthAgeDistribution = await Student.aggregate([
+            {
+                $addFields: {
+                    age: {
+                        $divide: [
+                            {
+                                $dateDiff: {
+                                    startDate: "$dateOfBirth",
+                                    endDate: "$$NOW",
+                                    unit: "month"
+                                }
+                            },
+                            12
+                        ]
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: "$class",
+                    totalStudents: { $sum: 1 },
+                    minAge: { $min: "$age" },
+                    maxAge: { $max: "$age" },
+                    avgAge: { $avg: "$age" }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    class: "$_id",
+                    totalStudents: 1,
+                    minAge: 1,
+                    maxAge: 1,
+                    avgAge: { $round: ["$avgAge", 1] } // round to 1 decimal place
+                }
+            },
+            { $sort: { class: 1 } }
+        ]);
+
+        // Send response
+        return res.status(200).json({
+            message: "Fetching all teachers and students for admin view.",
+            classStrengthAgeDistribution,
+            femaleVsMaleStudents,
+            femaleVsMaleTeachers,
+            teacherStudentRatio,
+            academicYearTrends,
+            teacherJoinTrends,
+            allTeachers,
+            allStudents,
+            Total_Teacher_Count: teacherCount,
+            Total_Student_Count: studentCount
+        });
     } catch (error) {
-        console.log("An error occurred while attempting to fetch all teachers and students data from the database.", error);
-        return res.status(500).json({ message: "An error occurred while attempting to fetch all teachers and students data.", error })
+        console.log(
+            "An error occurred while attempting to fetch all teachers and students data from the database.",
+            error
+        );
+        return res.status(500).json({
+            message:
+                "An error occurred while attempting to fetch all teachers and students data.",
+            error,
+        });
     }
-})
+}
+);
+
+
 
 // Get user growth data data for pie chart, role = Admin
 adminRouter.get('/user-growth', protect, authorizeRoles('admin'), async (req, res) => {
@@ -493,7 +712,7 @@ adminRouter.get('/user-growth', protect, authorizeRoles('admin'), async (req, re
     }
 });
 
-// Get role distribution data for pie chart, roles = admin and superadmin
+// Get role distribution data for pie chart, roles = admin
 adminRouter.get('/role-distribution', protect, authorizeRoles('admin'), async (req, res) => {
     try {
         // Count total users for percentage calculation
@@ -516,7 +735,6 @@ adminRouter.get('/role-distribution', protect, authorizeRoles('admin'), async (r
                 $sort: { count: -1 }
             }
         ]);
-
         // Map to format data with percentages
         const distributionData = roleDistribution.map(role => ({
             role: role._id,
@@ -540,7 +758,7 @@ adminRouter.get('/role-distribution', protect, authorizeRoles('admin'), async (r
     }
 });
 
-// Get recent activity data, excluding role = admin and superadmin
+// Get recent activity data, excluding role = admin 
 adminRouter.get('/recent-activity', protect, authorizeRoles('admin'), async (req, res) => {
     try {
         const { days = '7' } = req.query; // Default to 7 days
