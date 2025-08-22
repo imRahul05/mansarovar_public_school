@@ -552,15 +552,12 @@ adminRouter.get("/analytics-data", protect, authorizeRoles("admin"), async (req,
         const academicYearTrends = await Student.aggregate([
             {
                 $match: {
-                    admissionDate: {
-                        $gte: new Date("2021-01-01T00:00:00.000Z"),
-                        $lte: new Date("2025-12-31T23:59:59.999Z")
-                    }
+                    academicYear: { $in: ["2021-2022", "2022-2023", "2023-2024", "2024-2025", "2025-2026"] }
                 }
             },
             {
                 $group: {
-                    _id: { $year: "$admissionDate" },
+                    _id: "$academicYear",
                     studentCount: { $sum: 1 }
                 }
             },
@@ -570,7 +567,7 @@ adminRouter.get("/analytics-data", protect, authorizeRoles("admin"), async (req,
             {
                 $project: {
                     _id: 0,
-                    year: "$_id",
+                    academicYear: "$_id",
                     studentCount: 1
                 }
             }
