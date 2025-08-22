@@ -1,3 +1,5 @@
+
+
 import { useState, useEffect } from 'react';
 import { adminAPI } from '../../../services/api';
 import { Users, GraduationCap, Activity, TrendingUp, RefreshCw, UserCheck, BarChart3 } from 'lucide-react';
@@ -94,11 +96,10 @@ const UserGrowthChart = ({ data, selectedPeriod, onPeriodChange }) => {
             <button
               key={period.value}
               onClick={() => onPeriodChange(period.value)}
-              className={`px-3 py-1 text-sm rounded-md transition-colors ${
-                selectedPeriod === period.value
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              className={`px-3 py-1 text-sm rounded-md transition-colors ${selectedPeriod === period.value
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
             >
               {period.label}
             </button>
@@ -190,9 +191,8 @@ const RecentActivitySection = ({ data }) => {
                 </div>
                 <div className="text-right">
                   <span
-                    className={`inline-flex px-2 py-1 text-xs rounded-full ${
-                      user.role === 'student' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
-                    }`}
+                    className={`inline-flex px-2 py-1 text-xs rounded-full ${user.role === 'student' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+                      }`}
                   >
                     {user.role}
                   </span>
@@ -224,9 +224,8 @@ const RecentActivitySection = ({ data }) => {
                 </div>
                 <div className="text-right">
                   <span
-                    className={`inline-flex px-2 py-1 text-xs rounded-full ${
-                      user.role === 'student' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
-                    }`}
+                    className={`inline-flex px-2 py-1 text-xs rounded-full ${user.role === 'student' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+                      }`}
                   >
                     {user.role}
                   </span>
@@ -267,8 +266,8 @@ const Analytics = () => {
       setError(null);
 
       const [analytics, userGrowth, roleDistribution, activity] = await Promise.all([
-        adminAPI.getAnalyticsDataByAdmin(), 
-        adminAPI.getUserGrowthDataByAdmin(selectedPeriod), 
+        adminAPI.getAnalyticsDataByAdmin(),
+        adminAPI.getUserGrowthDataByAdmin(selectedPeriod),
         adminAPI.getRoleDistributionByAdmin(),
         adminAPI.getRecentActivityByAdmin('30'), // getRecentActivity
       ]);
@@ -276,7 +275,7 @@ const Analytics = () => {
       setAnalyticsData(analytics);
       setUserGrowthData(userGrowth);
       setRoleDistributionData(roleDistribution);
-      console.log(roleDistribution)
+      // console.log(roleDistribution)
       setRecentActivity(activity);
     } catch (error) {
       console.error('Error fetching analytics data:', error);
@@ -325,31 +324,31 @@ const Analytics = () => {
       </div>
     );
   }
-  
+  console.log(analyticsData)
   // Stats configuration
-// Calculate combined total
-const totalTeachers = roleDistributionData?.distribution?.find((item) => item.role === 'teacher')?.count || 0;
-const totalStudents = roleDistributionData?.distribution?.find((item) => item.role === 'student')?.count || 0;
-let combinedTotal = totalTeachers + totalStudents;
+  // Calculate combined total
+  const totalTeachers = roleDistributionData?.distribution?.find((item) => item.role === 'teacher')?.count || 0;
+  const totalStudents = roleDistributionData?.distribution?.find((item) => item.role === 'student')?.count || 0;
+  let combinedTotal = totalTeachers + totalStudents;
 
-const stats = [
-  {
-    label: 'Total Students',
-    value: totalStudents || analyticsData.Total_Student_Count || 0,
-    icon: <GraduationCap className="h-6 w-6 text-white" />,
-    color: 'bg-blue-500',
-    change: `+${combinedTotal}`,
-    changeLabel: 'new this month',
-  },
-  {
-    label: 'Total Teachers',
-    value: totalTeachers || analyticsData.Total_Teacher_Count || 0,
-    icon: <Users className="h-6 w-6 text-white" />,
-    color: 'bg-green-500',
-    change: `+${combinedTotal}`,
-    changeLabel: 'new this month',
-  },
-];
+  const stats = [
+    {
+      label: 'Total Students',
+      value: totalStudents || analyticsData.Total_Student_Count || 0,
+      icon: <GraduationCap className="h-6 w-6 text-white" />,
+      color: 'bg-blue-500',
+      change: `+${combinedTotal}`,
+      changeLabel: 'new this month',
+    },
+    {
+      label: 'Total Teachers',
+      value: totalTeachers || analyticsData.Total_Teacher_Count || 0,
+      icon: <Users className="h-6 w-6 text-white" />,
+      color: 'bg-green-500',
+      change: `+${combinedTotal}`,
+      changeLabel: 'new this month',
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -397,3 +396,4 @@ const stats = [
 };
 
 export default Analytics;
+
