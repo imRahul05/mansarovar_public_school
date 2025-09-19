@@ -1,0 +1,329 @@
+{
+    "message": "Fetching all teachers and students for admin view.",
+    "classStrengthAgeDistribution": [
+        {
+            "totalStudents": 1,
+            "minAge": 0.75,
+            "maxAge": 0.75,
+            "class": "1",
+            "avgAge": 0.8
+        },
+        {
+            "totalStudents": 1,
+            "minAge": 31.166666666666668,
+            "maxAge": 31.166666666666668,
+            "class": "10",
+            "avgAge": 31.2
+        }
+    ],
+    "femaleVsMaleStudents": [
+        {
+            "male": 0,
+            "female": 0,
+            "other": 1,
+            "class": "1"
+        },
+        {
+            "male": 0,
+            "female": 1,
+            "other": 0,
+            "class": "10"
+        }
+    ],
+    "femaleVsMaleTeachers": [
+        {
+            "male": 0,
+            "female": 0,
+            "other": 1,
+            "class": "7"
+        },
+        {
+            "male": 0,
+            "female": 0,
+            "other": 1,
+            "class": "5"
+        }
+    ],
+    "teacherStudentRatio": [
+        {
+            "class": "1",
+            "totalStudents": 1,
+            "totalTeachers": 1,
+            "ratio": 1
+        },
+        {
+            "class": "10",
+            "totalStudents": 1,
+            "totalTeachers": 1,
+            "ratio": 1
+        }
+    ],
+    "academicYearTrends": [
+        {
+            "studentCount": 3,
+            "academicYear": "2022-2023"
+        },
+        {
+            "studentCount": 22,
+            "academicYear": "2023-2024"
+        }
+    ],
+    "teacherJoinTrends": [
+        {
+            "_id": {
+                "year": 2024
+            },
+            "teacherCount": 9
+        },
+        {
+            "_id": {
+                "year": 2025
+            },
+            "teacherCount": 14
+        }
+    ],
+       "allTeachers": [
+        {
+            "_id": "6894775a99f8d331060660db",
+            "user": "6894775a99f8d331060660d9",
+            "employeeId": "Fugit mollitia asperiores magni distinctio maxime laboriosam quia maxime voluptatum.",
+            "designation": "Head Teacher",
+            "subjectsSpecialization": [
+                "Political Science"
+            ],
+            "qualification": "Ratione magnam facere officiis adipisci maxime ut.",
+            "experience": [
+                {
+                    "position": "Modi ducimus impedit.",
+                    "organization": "Est rerum sint quod placeat autem.",
+                    "fromDate": "2024-12-08T00:00:00.000Z",
+                    "toDate": "2026-01-02T00:00:00.000Z",
+                    "isCurrent": false,
+                    "description": "Nulla incidunt ad alias tenetur totam.",
+                    "_id": "6894775a99f8d331060660dc"
+                }
+            ],
+            "dateOfJoining": "2024-09-20T00:00:00.000Z",
+            "dateOfBirth": "2025-03-05T00:00:00.000Z",
+            "gender": "Male",
+            "emergencyContactName": "Quasi excepturi laboriosam hic dignissimos.",
+            "emergencyContactNumber": "4098989898",
+            "emergencyContactRelation": "Sibling",
+            "isActive": true,
+            "createdAt": "2025-08-07T09:52:26.258Z",
+            "updatedAt": "2025-08-07T09:52:26.258Z",
+            "__v": 0
+        },
+        {
+            "classTeacherOf": {
+                "class": "7",
+                "section": "A"
+            },
+            "_id": "6894787a99f8d331060660ef",
+            "user": "6894787a99f8d331060660ea",
+            "employeeId": "Laudantium qui minima unde modi nostrum.",
+            "designation": "Assistant Teacher",
+            "subjectsSpecialization": [
+                "Hindi",
+                "Physics",
+                "History",
+                "Geography",
+                "Physical Education",
+                "Art"
+            ],
+            "qualification": "Quae iure eius beatae.",
+            "experience": [
+                {
+                    "position": "Distinctio soluta ipsam ea similique natus repellendus fugiat.",
+                    "organization": "Maxime modi amet repellendus.",
+                    "fromDate": "2024-09-14T00:00:00.000Z",
+                    "toDate": "2025-11-09T00:00:00.000Z",
+                    "isCurrent": false,
+                    "description": "Iste tempora sed quibusdam exercitationem recusandae similique debitis.",
+                    "_id": "6894787a99f8d331060660f0"
+                },
+                {
+                    "position": "Corporis voluptates temporibus qui repellat quidem illum at.",
+                    "organization": "Debitis dolores quaerat error minima id dolorem ab reiciendis accusantium.",
+                    "fromDate": "2026-04-19T00:00:00.000Z",
+                    "toDate": "2025-09-13T00:00:00.000Z",
+                    "isCurrent": false,
+                    "description": "Laudantium eligendi excepturi impedit eum ab quibusdam.",
+                    "_id": "6894787a99f8d331060660f1"
+                }
+            ],
+            "dateOfJoining": "2026-06-25T00:00:00.000Z",
+            "dateOfBirth": "2024-10-20T00:00:00.000Z",
+            "gender": "Other",
+            "emergencyContactName": "Nobis aperiam ex mollitia.",
+            "emergencyContactNumber": "4138902345",
+            "emergencyContactRelation": "Other",
+            "isActive": true,
+            "createdAt": "2025-08-07T09:57:14.329Z",
+            "updatedAt": "2025-08-13T09:23:48.673Z",
+            "__v": 0
+        },
+        {
+            "_id": "6894787a99f8d331060660f3",
+            "user": "6894787a99f8d331060660ec",
+            "employeeId": "Reprehenderit magni nostrum.",
+            "designation": "Subject Teacher",
+            "subjectsSpecialization": [
+                "English",
+                "Social Studies",
+                "Chemistry",
+                "Biology",
+                "Art"
+            ],
+            "qualification": "Omnis voluptatem consequatur labore quam nulla.",
+            "experience": [
+                {
+                    "position": "Autem quo necessitatibus iste sed labore.",
+                    "organization": "Vel eos a laborum quaerat deleniti repudiandae necessitatibus.",
+                    "fromDate": "2026-04-11T00:00:00.000Z",
+                    "toDate": "2026-01-23T00:00:00.000Z",
+                    "isCurrent": false,
+                    "description": "Modi velit quam accusamus aspernatur sit.",
+                    "_id": "6894787a99f8d331060660f4"
+                },
+                {
+                    "position": "Et ipsum debitis sapiente totam repellendus eligendi.",
+                    "organization": "Nobis harum eum.",
+                    "fromDate": "2026-08-03T00:00:00.000Z",
+                    "toDate": "2026-06-16T00:00:00.000Z",
+                    "isCurrent": false,
+                    "description": "Magni vitae molestias qui quidem temporibus voluptatibus.",
+                    "_id": "6894787a99f8d331060660f5"
+                },
+                {
+                    "position": "Illo nulla sapiente autem deserunt.",
+                    "organization": "Harum illum alias voluptates quis labore at officia quos.",
+                    "fromDate": "2024-09-04T00:00:00.000Z",
+                    "toDate": "2024-10-29T00:00:00.000Z",
+                    "isCurrent": false,
+                    "description": "Veniam quo nobis veniam eius.",
+                    "_id": "6894787a99f8d331060660f6"
+                },
+                {
+                    "position": "Rem ea soluta excepturi.",
+                    "organization": "Tempore quidem corrupti eveniet porro necessitatibus voluptas.",
+                    "fromDate": "2025-10-14T00:00:00.000Z",
+                    "toDate": "2025-07-07T00:00:00.000Z",
+                    "isCurrent": false,
+                    "description": "Rerum quas est inventore earum possimus eos quam illum earum.",
+                    "_id": "6894787a99f8d331060660f7"
+                }
+            ],
+            "dateOfJoining": "2024-11-20T00:00:00.000Z",
+            "dateOfBirth": "2025-01-27T00:00:00.000Z",
+            "gender": "Male",
+            "emergencyContactName": "Natus perspiciatis ad impedit repellendus.",
+            "emergencyContactNumber": "4138902345",
+            "emergencyContactRelation": "Sibling",
+            "isActive": true,
+            "createdAt": "2025-08-07T09:57:14.342Z",
+            "updatedAt": "2025-08-07T09:57:14.342Z",
+            "__v": 0
+        },
+        {
+            "classTeacherOf": {
+                "class": "6",
+                "section": "A"
+            },
+            "_id": "689478d399f8d33106066105",
+            "user": "689478d299f8d33106066103",
+            "employeeId": "Hic temporibus quaerat voluptatum.",
+            "designation": "Vice Principal",
+            "subjectsSpecialization": [
+                "Mathematics",
+                "English",
+                "Hindi",
+                "Social Studies",
+                "Computer Science",
+                "Chemistry",
+                "Biology",
+                "Economics",
+                "Art",
+                "Music"
+            ],
+            "qualification": "Sit excepturi quia.",
+            "experience": [
+                {
+                    "position": "Blanditiis eligendi nulla provident voluptatem sit natus nulla.",
+                    "organization": "Ducimus dolor eaque aperiam praesentium saepe ab itaque.",
+                    "fromDate": "2025-05-12T00:00:00.000Z",
+                    "toDate": "2025-05-18T00:00:00.000Z",
+                    "isCurrent": false,
+                    "description": "Animi dolorem tempore magnam voluptas.",
+                    "_id": "689478d399f8d33106066106"
+                }
+            ],
+            "dateOfJoining": "2024-10-23T00:00:00.000Z",
+            "dateOfBirth": "2025-04-09T00:00:00.000Z",
+            "gender": "Male",
+            "emergencyContactName": "Eos laudantium exercitationem iure doloremque soluta corrupti dolorum.",
+            "emergencyContactNumber": "4138902345",
+            "emergencyContactRelation": "Parent",
+            "isActive": true,
+            "createdAt": "2025-08-07T09:58:43.037Z",
+            "updatedAt": "2025-08-13T10:01:14.684Z",
+            "__v": 0
+        }
+       ],
+       "allStudents": [
+        {
+            "_id": "6893960a9572711289d6ee7a",
+            "user": "6893960a9572711289d6ee78",
+            "admissionNumber": "161",
+            "class": "4",
+            "section": "C",
+            "rollNumber": 121,
+            "dateOfBirth": "2024-10-29T00:00:00.000Z",
+            "gender": "Male",
+            "bloodGroup": "O-",
+            "fatherName": "Eaela95",
+            "motherName": "Eiara_Corkeri",
+            "parentContactNumber": "4289898989",
+            "parentEmail": "Eour.email+fakedata90263@gmail.com",
+            "emergencyContactName": "Efficiis doloribus repudiandae doloremque.",
+            "emergencyContactNumber": "9289898980",
+            "emergencyContactRelation": "FatheR",
+            "admissionDate": "2024-02-19T00:00:00.000Z",
+            "previousSchool": "Gmet sunt temporibus incidunt impedit.",
+            "academicYear": "2024-2025",
+            "medicalConditions": "Euam repudiandae neque.",
+            "isActive": true,
+            "createdAt": "2025-08-06T17:51:06.303Z",
+            "updatedAt": "2025-08-12T13:10:09.639Z",
+            "__v": 0
+        },
+        {
+            "_id": "689396cabde067c753cf694a",
+            "user": "689396cabde067c753cf6948",
+            "admissionNumber": "164",
+            "class": "Nursery",
+            "section": "D",
+            "rollNumber": 483,
+            "dateOfBirth": "2025-05-28T00:00:00.000Z",
+            "gender": "Other",
+            "bloodGroup": "B+",
+            "fatherName": "Darrell_Kilback28",
+            "motherName": "Simone.Schmidt43",
+            "parentContactNumber": "1234567890",
+            "parentEmail": "your.email+fakedata73693@gmail.com",
+            "emergencyContactName": "Earum atque minus itaque repellendus ea.",
+            "emergencyContactNumber": "1234567890",
+            "emergencyContactRelation": "Guardian",
+            "admissionDate": "2025-10-19T00:00:00.000Z",
+            "previousSchool": "Quo incidunt ab recusandae excepturi beatae tenetur voluptatibus.",
+            "academicYear": "2025-2026",
+            "medicalConditions": "Aperiam provident optio omnis.",
+            "isActive": true,
+            "createdAt": "2025-08-06T17:54:18.588Z",
+            "updatedAt": "2025-08-06T17:54:18.588Z",
+            "__v": 0
+        }
+       ],
+    "Total_Teacher_Count": 33,
+    "Total_Student_Count": 37
+}

@@ -52,6 +52,12 @@ app.use(cors({
   },
   credentials: true
 }));
+
+
+app.use('/test', (req, res) => {
+  res.status(200).json({ message: 'Test route working' });
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/superadmin', superAdminRouter);

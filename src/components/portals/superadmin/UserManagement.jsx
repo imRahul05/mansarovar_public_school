@@ -31,13 +31,16 @@ const UserManagement = () => {
         setLoading(true);
         const response = await superAdminAPI.getUsers();
         if (response.success) {
-          setUsers(response.users);
+          // Ensure users is always an array
+          setUsers(Array.isArray(response.users) ? response.users : []);
         } else {
           toast.error('Failed to fetch users');
+          setUsers([]); // Set empty array on error
         }
       } catch (error) {
         console.error('Error fetching users:', error);
         toast.error(error.message || 'Failed to fetch users');
+        setUsers([]); // Set empty array on error
       } finally {
         setLoading(false);
       }
@@ -81,11 +84,36 @@ const UserManagement = () => {
       toast.error(error.message || 'Failed to update user status');
     }
   };
-
+  console.log("Users data:", users);
+  
+  // Ensure users is an array before processing
+  if (!Array.isArray(users)) {
+    console.error('Users is not an array:', users);
+    return <div className="text-red-500">Error: Invalid user data format</div>;
+  }
+  
+  // Add debugging to identify problematic user objects
+  users.forEach((user, index) => {
+    if (!user.name || !user.email || !user.customID) {
+      console.warn(`User at index ${index} has missing data:`, {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        customID: user.customID
+      });
+    }
+  });
+  
   const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.customID.toLowerCase().includes(searchTerm.toLowerCase());
+    // Safety check to ensure user object is valid
+    if (!user || typeof user !== 'object') {
+      console.warn('Invalid user object found:', user);
+      return false;
+    }
+    
+    const matchesSearch = (user.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (user.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (user.customID || '').toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesRole = filterRole === 'all' || user.role === filterRole;
     const matchesStatus = filterStatus === 'all' || 
@@ -202,9 +230,9 @@ const UserManagement = () => {
                 <tr key={user._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                      <div className="text-sm text-gray-500">{user.email}</div>
-                      <div className="text-xs text-gray-400">{user.customID}</div>
+                      <div className="text-sm font-medium text-gray-900">{user.name || 'N/A'}</div>
+                      <div className="text-sm text-gray-500">{user.email || 'N/A'}</div>
+                      <div className="text-xs text-gray-400">{user.customID || 'N/A'}</div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -257,7 +285,7 @@ const UserManagement = () => {
                           </button>
                         }
                         title="Verify User"
-                        description={`Are you sure you want to verify ${user.name}? Once verified, this action cannot be reversed. Please check the user data carefully before proceeding.`}
+                        description={`Are you sure you want to verify ${user.name || 'this user'}? Once verified, this action cannot be reversed. Please check the user data carefully before proceeding.`}
                         actionText="Verify User"
                         cancelText="Cancel"
                         onConfirm={() => handleVerifyToggle(user._id, user.isVerified)}
@@ -280,7 +308,7 @@ const UserManagement = () => {
                           </button>
                         }
                         title={user.isActive ? 'Deactivate User' : 'Activate User'}
-                        description={`Are you sure you want to ${user.isActive ? 'deactivate' : 'activate'} ${user.name}? ${user.isActive ? 'The user will lose access to the system.' : 'The user will regain access to the system.'}`}
+                        description={`Are you sure you want to ${user.isActive ? 'deactivate' : 'activate'} ${user.name || 'this user'}? ${user.isActive ? 'The user will lose access to the system.' : 'The user will regain access to the system.'}`}
                         actionText={user.isActive ? 'Deactivate' : 'Activate'}
                         cancelText="Cancel"
                         onConfirm={() => handleActiveToggle(user._id, user.isActive)}
