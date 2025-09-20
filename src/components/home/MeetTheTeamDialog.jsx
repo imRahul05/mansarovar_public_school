@@ -38,7 +38,7 @@ const MeetTheTeamDialog = ({ isOpen, onClose }) => {
       id: 1,
       name: "Rahul Kumar",
       role: "Team Leader",
-      image: "https://i.ibb.co/LW3sZR4/img.png",
+      image: "https://i.ibb.co/3mJSd72Y/rahul-profile.png",
       description: "Full-Stack Developer & Project Architect",
       skills: ["React", "Node.js", "MongoDB", "Leadership"],
       github: "https://github.com/imRahul05",
