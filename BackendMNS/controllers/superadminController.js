@@ -202,6 +202,11 @@ const getAnalyticsData = async (req, res) => {
     // User roles distribution
     const roleDistribution = await User.aggregate([
       {
+        $match: {
+          role: { $exists: true, $ne: null, $ne: "" } // Filter out null/empty roles
+        }
+      },
+      {
         $group: {
           _id: "$role",
           count: { $sum: 1 },
@@ -255,11 +260,13 @@ const getAnalyticsData = async (req, res) => {
           verifiedUsersLastMonth,
         },
         userGrowth: userGrowthData,
-        roleDistribution: roleDistribution.map((role) => ({
-          role: role._id,
-          count: role.count,
-          percentage: ((role.count / totalUsers) * 100).toFixed(1),
-        })),
+        roleDistribution: roleDistribution
+          .filter(role => role._id && typeof role._id === 'string') // Additional safety check
+          .map((role) => ({
+            role: role._id,
+            count: role.count,
+            percentage: ((role.count / totalUsers) * 100).toFixed(1),
+          })),
       },
     });
   } catch (error) {
@@ -329,9 +336,41 @@ const getUserGrowth = async (req, res) => {
 
 const getRoleDistribution = async (req, res) => {
   try {
+    // First, check for and fix any users with invalid roles
+    const usersWithInvalidRoles = await User.find({
+      $or: [
+        { role: { $exists: false } },
+        { role: null },
+        { role: "" },
+        { role: { $nin: ["student", "teacher", "admin", "superadmin"] } }
+      ]
+    });
+
+    if (usersWithInvalidRoles.length > 0) {
+      console.log(`Found ${usersWithInvalidRoles.length} users with invalid roles. Fixing...`);
+      
+      // Fix invalid roles by setting them to 'student' (default)
+      await User.updateMany(
+        {
+          $or: [
+            { role: { $exists: false } },
+            { role: null },
+            { role: "" },
+            { role: { $nin: ["student", "teacher", "admin", "superadmin"] } }
+          ]
+        },
+        { $set: { role: "student" } }
+      );
+    }
+
     const totalUsers = await User.countDocuments();
 
     const roleDistribution = await User.aggregate([
+      {
+        $match: {
+          role: { $exists: true, $ne: null, $ne: "" } // Filter out null/empty roles
+        }
+      },
       {
         $group: {
           _id: "$role",
@@ -343,11 +382,15 @@ const getRoleDistribution = async (req, res) => {
       },
     ]);
 
-    const distributionData = roleDistribution.map((role) => ({
-      role: role._id,
-      count: role.count,
-      percentage: parseFloat(((role.count / totalUsers) * 100).toFixed(1)),
-    }));
+    const distributionData = roleDistribution
+      .filter(role => role._id && typeof role._id === 'string') // Additional safety check
+      .map((role) => ({
+        role: role._id,
+        count: role.count,
+        percentage: parseFloat(((role.count / totalUsers) * 100).toFixed(1)),
+      }));
+
+    console.log('Role distribution data:', distributionData); // Debug log
 
     res.status(200).json({
       success: true,

@@ -1,7 +1,11 @@
 import Plot from 'react-plotly.js';
 
 const RoleDistributionChart = ({ data }) => {
-  if (!data || !data.distribution) {
+  // Add debugging
+  console.log('RoleDistributionChart received data:', data);
+  
+  if (!data || !data.distribution || !Array.isArray(data.distribution)) {
+    console.warn('Invalid data structure in RoleDistributionChart:', data);
     return (
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
         <h3 className="text-lg font-medium text-gray-900 mb-4">User Roles Distribution</h3>
@@ -12,11 +16,41 @@ const RoleDistributionChart = ({ data }) => {
     );
   }
 
+  // Filter out invalid data items and log them
+  const validDistribution = data.distribution.filter(item => {
+    const isValid = item && 
+      typeof item === 'object' && 
+      item.role && 
+      typeof item.role === 'string' &&
+      typeof item.count === 'number' &&
+      item.count >= 0;
+    
+    if (!isValid) {
+      console.warn('Invalid distribution item found:', item);
+    }
+    
+    return isValid;
+  });
+
+  if (validDistribution.length === 0) {
+    return (
+      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <h3 className="text-lg font-medium text-gray-900 mb-4">User Roles Distribution</h3>
+        <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+          <p className="text-gray-500">No valid data available</p>
+        </div>
+      </div>
+    );
+  }
+
   const colors = ['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444'];
 
   const plotData = [{
-    values: data.distribution.map(item => item.count),
-    labels: data.distribution.map(item => item.role.charAt(0).toUpperCase() + item.role.slice(1)),
+    values: validDistribution.map(item => item.count || 0),
+    labels: validDistribution.map(item => {
+      const role = item.role || 'unknown';
+      return role.charAt(0).toUpperCase() + role.slice(1);
+    }),
     type: 'pie',
     textinfo: 'label+percent',
     textposition: 'outside',
@@ -25,7 +59,7 @@ const RoleDistributionChart = ({ data }) => {
       color: '#374151'
     },
     marker: {
-      colors: colors.slice(0, data.distribution.length)
+      colors: colors.slice(0, validDistribution.length)
     },
     hole: 0.4,
     // pull: 0.05
@@ -54,7 +88,7 @@ const RoleDistributionChart = ({ data }) => {
     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-medium text-gray-900">User Roles Distribution</h3>
-        <p className="text-sm text-gray-500">Total: {data.totalUsers} users</p>
+        <p className="text-sm text-gray-500">Total: {data.totalUsers || 0} users</p>
       </div>
       <Plot
         data={plotData}

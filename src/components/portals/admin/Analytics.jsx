@@ -244,6 +244,9 @@ const RecentActivitySection = ({ data }) => {
   );
 };
 
+// Import the analytics button component
+import { AnalyticsButton } from './analytics/AnalyticsButton';
+
 // Main Analytics Component
 const Analytics = () => {
   const [analyticsData, setAnalyticsData] = useState({
@@ -355,13 +358,16 @@ const Analytics = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <AnalyticsHeader />
-        <button
-          onClick={fetchAnalyticsData}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-        >
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh Data
-        </button>
+        <div className="flex gap-4">
+          <button
+            onClick={fetchAnalyticsData}
+            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh Data
+          </button>
+          <AnalyticsButton />
+        </div>
       </div>
 
       {/* Stats Grid */}
