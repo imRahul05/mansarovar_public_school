@@ -52,20 +52,22 @@ const TeacherStudentRatioChart = ({ data = [], loading, error }) => {
   const layout = {
     title: {
       text: 'Student-Teacher Ratio by Class',
-      font: { size: 16, color: '#1F2937' }
+      font: { size: 14, color: '#1F2937' }
     },
     xaxis: { 
       title: 'Class',
       tickangle: -45,
-      automargin: true
+      automargin: true,
+      titlefont: { size: 12 }
     },
     yaxis: { 
       title: 'Student-Teacher Ratio',
       gridcolor: '#E5E7EB',
-      automargin: true
+      automargin: true,
+      titlefont: { size: 12 }
     },
-    margin: { t: 60, b: 70, l: 60, r: 30 },
-    height: 350,
+    margin: { t: 50, b: 60, l: 50, r: 20 },
+    height: 300,
     plot_bgcolor: '#FFFFFF',
     paper_bgcolor: '#FFFFFF',
     bargap: 0.3,
@@ -85,12 +87,12 @@ const TeacherStudentRatioChart = ({ data = [], loading, error }) => {
           </span>
         </div>
       </div>
-      <div className="w-full h-[350px]">
+      <div className="w-full h-[300px] overflow-hidden">
         <Plot
           data={plotData}
           layout={{
             ...layout,
-            height: 350,
+            height: 300,
             autosize: true
           }}
           config={{ responsive: true, displayModeBar: false }}

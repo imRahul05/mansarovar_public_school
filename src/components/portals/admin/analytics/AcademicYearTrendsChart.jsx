@@ -44,27 +44,30 @@ const AcademicYearTrendsChart = ({ data = [], teacherData = [], showProjection =
   const layout = {
     title: {
       text: 'Enrollment & Recruitment Trends by Academic Year',
-      font: { size: 16, color: '#1F2937' }
+      font: { size: 14, color: '#1F2937' }
     },
     xaxis: { 
       title: 'Academic Year',
       tickangle: -45,
-      automargin: true
+      automargin: true,
+      titlefont: { size: 12 }
     },
     yaxis: { 
       title: 'Count',
       gridcolor: '#E5E7EB',
-      automargin: true
+      automargin: true,
+      titlefont: { size: 12 }
     },
     legend: {
       orientation: 'h',
-      y: -0.15,
+      y: -0.2,
       xanchor: 'center',
-      x: 0.5
+      x: 0.5,
+      font: { size: 11 }
     },
     barmode: 'group',
-    margin: { t: 60, b: 80, l: 60, r: 30 },
-    height: 350,
+    margin: { t: 50, b: 70, l: 50, r: 20 },
+    height: 300,
     plot_bgcolor: '#FFFFFF',
     paper_bgcolor: '#FFFFFF',
     bargap: 0.15,
@@ -106,12 +109,12 @@ const AcademicYearTrendsChart = ({ data = [], teacherData = [], showProjection =
           </span>
         </div>
       </div>
-      <div className="w-full h-[350px]">
+      <div className="w-full h-[300px] overflow-hidden">
         <Plot
           data={plotData}
           layout={{
             ...layout,
-            height: 350,
+            height: 300,
             autosize: true
           }}
           config={{ responsive: true, displayModeBar: false }}

@@ -101,11 +101,16 @@ const AdminAnalyticsDashboard = () => {
             variant="outline" 
             onClick={handleRefresh}
             disabled={loading}
+            className="!border-gray-300 !bg-white !text-gray-700 hover:!bg-gray-50 hover:!text-gray-900 px-4 py-2 rounded-md border shadow-sm"
           >
             <RefreshCcw className="mr-2 h-4 w-4" />
             Refresh Data
           </Button>
-          <Button onClick={handleDownload}>
+          <Button 
+            variant="default"
+            onClick={handleDownload}
+            className="!bg-blue-600 !text-white hover:!bg-blue-700 px-4 py-2 rounded-md shadow-sm border-0"
+          >
             <Download className="mr-2 h-4 w-4" />
             Download Report
           </Button>
@@ -113,11 +118,31 @@ const AdminAnalyticsDashboard = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-4 mb-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="academic">Academic Analytics</TabsTrigger>
-          <TabsTrigger value="demographic">Demographics</TabsTrigger>
-          <TabsTrigger value="trends">Trends & Forecasts</TabsTrigger>
+        <TabsList className="grid grid-cols-4 mb-6 !bg-gray-100 !border !border-gray-200 rounded-lg p-1 w-full max-w-full h-12">
+          <TabsTrigger 
+            value="overview"
+            className="!bg-white !text-gray-700 data-[state=active]:!bg-blue-600 data-[state=active]:!text-white hover:!bg-gray-50 hover:!text-gray-900 px-2 py-2 rounded-md transition-colors text-sm font-medium whitespace-nowrap overflow-hidden"
+          >
+            Overview
+          </TabsTrigger>
+          <TabsTrigger 
+            value="academic"
+            className="!bg-white !text-gray-700 data-[state=active]:!bg-blue-600 data-[state=active]:!text-white hover:!bg-gray-50 hover:!text-gray-900 px-2 py-2 rounded-md transition-colors text-sm font-medium whitespace-nowrap overflow-hidden"
+          >
+            Academic Analytics
+          </TabsTrigger>
+          <TabsTrigger 
+            value="demographic"
+            className="!bg-white !text-gray-700 data-[state=active]:!bg-blue-600 data-[state=active]:!text-white hover:!bg-gray-50 hover:!text-gray-900 px-2 py-2 rounded-md transition-colors text-sm font-medium whitespace-nowrap overflow-hidden"
+          >
+            Demographics
+          </TabsTrigger>
+          <TabsTrigger 
+            value="trends"
+            className="!bg-white !text-gray-700 data-[state=active]:!bg-blue-600 data-[state=active]:!text-white hover:!bg-gray-50 hover:!text-gray-900 px-2 py-2 rounded-md transition-colors text-sm font-medium whitespace-nowrap overflow-hidden"
+          >
+            Trends & Forecasts
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="overview" className="space-y-6">
