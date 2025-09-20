@@ -8,7 +8,7 @@ import { Button } from '../../components/ui/button';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ButtonLoadingSpinner from '../../components/common/ButtonLoadingSpinner';
 import { guestCredentials, guestRoles } from '../../data/guestCredentials';
-import logo from '../../assets/images/logo.jpeg'
+import logo from '../../assets/images/Wlogo.png'
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
