@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { format, parseISO, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isToday, isSameMonth } from 'date-fns';
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isToday, isSameMonth } from 'date-fns';
 import { Link } from 'react-router-dom';
 
 const EventCalendar = ({ events }) => {

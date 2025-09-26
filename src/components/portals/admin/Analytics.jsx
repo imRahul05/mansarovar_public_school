@@ -1,6 +1,6 @@
 
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { adminAPI } from '../../../services/api';
 import { Users, GraduationCap, Activity, TrendingUp, RefreshCw, UserCheck, BarChart3 } from 'lucide-react';
 import Plot from 'react-plotly.js';
@@ -263,7 +263,7 @@ const Analytics = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('6');
 
   // Fetch all analytics data
-  const fetchAnalyticsData = async () => {
+  const fetchAnalyticsData =  useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -286,10 +286,11 @@ const Analytics = () => {
     } finally {
       setLoading(false);
     }
-  };
+  },[selectedPeriod]);
 
   useEffect(() => {
     fetchAnalyticsData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPeriod]);
 
   // Handle period change for user growth chart

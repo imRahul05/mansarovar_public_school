@@ -13,7 +13,6 @@ import {
   ChevronRight,
   Users,
   Activity,
-  TrendingUp,
   LineChart,
 } from "lucide-react";
 
@@ -26,7 +25,7 @@ const AdminSidebar = () => {
     try {
       await logout();
     } catch (error) {
-      toast.error("Failed to logout");
+      toast.error("Failed to logout",error.message||"error");
     }
   };
 

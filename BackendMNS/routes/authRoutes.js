@@ -1,9 +1,7 @@
 import express from 'express';
 import { protect, authorizeRoles } from '../middlewares/authMiddleware.js';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
-import { generateCustomID } from '../utils/generateCustomID.js';
 import { getMe, loginUser, logoutUser, registerSuperAdmin, registerUser } from '../controllers/authController.js';
 
 const authRouter = express.Router();

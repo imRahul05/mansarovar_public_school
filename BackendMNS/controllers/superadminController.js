@@ -1,14 +1,14 @@
-import express from "express";
-import { protect, authorizeRoles } from "../middlewares/authMiddleware.js";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
-import { generateCustomID } from "../utils/generateCustomID.js";
-import {
-  loginUser,
-  logoutUser,
-  registerSuperAdmin,
-  registerUser,
-} from "../controllers/authController.js";
+// import express from "express";
+// import { protect, authorizeRoles } from "../middlewares/authMiddleware.js";
+// import jwt from "jsonwebtoken";
+// import bcrypt from "bcryptjs";
+// import { generateCustomID } from "../utils/generateCustomID.js";
+// import {
+//   loginUser,
+//   logoutUser,
+//   registerSuperAdmin,
+//   registerUser,
+// } from "../controllers/authController.js";
 import User from "../models/User.js";
 
 const getAllUsers = async (req, res) => {
@@ -203,7 +203,7 @@ const getAnalyticsData = async (req, res) => {
     const roleDistribution = await User.aggregate([
       {
         $match: {
-          role: { $exists: true, $ne: null, $ne: "" } // Filter out null/empty roles
+          role: { $exists: true, $nin: [null, ""] } // Filter out null/empty roles
         }
       },
       {
@@ -368,7 +368,7 @@ const getRoleDistribution = async (req, res) => {
     const roleDistribution = await User.aggregate([
       {
         $match: {
-          role: { $exists: true, $ne: null, $ne: "" } // Filter out null/empty roles
+          role: { $exists: true, $nin: [null, ""] } // Filter out null/empty roles
         }
       },
       {

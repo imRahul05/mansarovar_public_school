@@ -26,8 +26,8 @@ const TeacherStudentRatioChart = ({ data = [], loading, error }) => {
   // Process data for visualization
   const classes = sortedData.map(item => item.class);
   const ratios = sortedData.map(item => item.ratio);
-  const students = sortedData.map(item => item.totalStudents);
-  const teachers = sortedData.map(item => item.totalTeachers);
+  // const students = sortedData.map(item => item.totalStudents);
+  // const teachers = sortedData.map(item => item.totalTeachers);
   
   // Prepare custom data for hover information
   const customdata = sortedData.map(item => [

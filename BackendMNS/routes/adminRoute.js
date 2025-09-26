@@ -1,11 +1,11 @@
 import express from 'express';
 import { protect, authorizeRoles } from '../middlewares/authMiddleware.js';
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
+// import jwt from 'jsonwebtoken';
+// import bcrypt from 'bcryptjs';
 import { generateCustomID } from '../utils/generateCustomID.js';
-import { loginUser, logoutUser, registerSuperAdmin, registerUser } from '../controllers/authController.js';
+// import { loginUser, logoutUser, registerSuperAdmin, registerUser } from '../controllers/authController.js';
 import User from '../models/User.js';
-import { deleteUserByID, getAllUsers, getUnverifiedUsers, getUserDetailsByID, userStatusUpdate, verifyUser } from '../controllers/superadminController.js';
+// import { deleteUserByID, getAllUsers, getUnverifiedUsers, getUserDetailsByID, userStatusUpdate, verifyUser } from '../controllers/superadminController.js';
 import Student from '../models/Student.js';
 import Teacher from '../models/Teacher.js'
 const adminRouter = express.Router();
@@ -669,7 +669,7 @@ adminRouter.get('/user-growth', protect, authorizeRoles('admin'), async (req, re
             date.setMonth(date.getMonth() - i);
             const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
             const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-            const filterRoles = { role: { $nin: ['admin', 'superAdmin'] } };
+            // const filterRoles = { role: { $nin: ['admin', 'superAdmin'] } };
 
             const monthlyRegistrations = await User.countDocuments({
                 createdAt: {

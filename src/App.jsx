@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Suspense, lazy, useEffect } from 'react';
+import { Suspense, lazy } from 'react';
 import { AuthProvider } from './contexts/AuthContext';
 import { Toaster } from 'react-hot-toast';
 

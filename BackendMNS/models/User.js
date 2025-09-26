@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import { validators } from "tailwind-merge";
+// import { validators } from "tailwind-merge";
 
 const userSchema = new mongoose.Schema(
   {

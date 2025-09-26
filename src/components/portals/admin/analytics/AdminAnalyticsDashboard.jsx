@@ -12,9 +12,9 @@ import ClassStrengthChart from './ClassStrengthChart';
 import GenderDistributionChart from './GenderDistributionChart';
 import TeacherStudentRatioChart from './TeacherStudentRatioChart';
 import AcademicYearTrendsChart from './AcademicYearTrendsChart';
-import AttendanceAnalyticsChart from './AttendanceAnalyticsChart';
-import PerformanceAnalyticsChart from './PerformanceAnalyticsChart';
-import EnrollmentTrendsChart from './EnrollmentTrendsChart';
+// import AttendanceAnalyticsChart from './AttendanceAnalyticsChart';
+// import PerformanceAnalyticsChart from './PerformanceAnalyticsChart';
+// import EnrollmentTrendsChart from './EnrollmentTrendsChart';
 // No mock data - actual data will be loaded from API
 
 const AdminAnalyticsDashboard = () => {

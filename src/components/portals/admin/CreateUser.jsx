@@ -179,7 +179,7 @@ const CreateUser = () => {
     try {
       const usersToCreate = users.map(user => {
         // Remove the id field as it's only for frontend tracking
-        const { id, ...userData } = user;
+        const { id: _id, ...userData } = user;
         
         // For students, ensure the class field is properly named
         if (userType === 'student') {

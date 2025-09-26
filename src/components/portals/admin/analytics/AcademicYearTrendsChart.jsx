@@ -1,7 +1,7 @@
 import React from 'react';
 import Plot from 'react-plotly.js';
-
-const AcademicYearTrendsChart = ({ data = [], teacherData = [], showProjection = false, loading, error }) => {
+//showProjection = false
+const AcademicYearTrendsChart = ({ data = [], teacherData = [], loading, error }) => {
   if (loading || error || !data || data.length === 0) {
     return null;
   }
