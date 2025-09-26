@@ -1,0 +1,31 @@
+name: Code Quality
+
+on: [push, pull_request]
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repo
+      - uses: actions/checkout@v3
+
+      # Setup Node.js
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # Backend checks
+      - name: Backend lint & test
+        run: |
+          cd BackendMNS
+          npm install
+          npm run lint --if-present
+       #   npm test --if-present
+
+      # Frontend checks
+      - name: Frontend lint & test
+        run: |
+          npm install
+          npm run lint --if-present
+          npm test --if-present
