@@ -13,7 +13,7 @@ jobs:
       # Setup Node.js
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: ">=18"
 
       # Backend checks
       - name: Backend lint & test
