@@ -25,6 +25,7 @@ const TeacherSidebar = () => {
       await logout();
     } catch (error) {
       toast.error('Failed to logout');
+      toast.error(error)
     }
   };
 

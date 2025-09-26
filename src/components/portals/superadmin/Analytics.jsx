@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { adminAPI } from '../../../services/api';
 import UserGrowthChart from './analytics/UserGrowthChart';
 import StatsGrid from './analytics/StatsGrid';
@@ -17,7 +17,7 @@ const Analytics = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('6');
 
   // Fetch all analytics data
-  const fetchAnalyticsData = async () => {
+  const fetchAnalyticsData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -39,7 +39,7 @@ const Analytics = () => {
     } finally {
       setLoading(false);
     }
-  };
+  },[selectedPeriod]);
 
   useEffect(() => {
     fetchAnalyticsData();

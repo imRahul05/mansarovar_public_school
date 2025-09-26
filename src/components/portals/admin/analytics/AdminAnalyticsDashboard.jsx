@@ -33,7 +33,7 @@ const AdminAnalyticsDashboard = () => {
   const totalTeachers = analyticsData?.Total_Teacher_Count || 0;
   const totalStudents = analyticsData?.Total_Student_Count || 0;
   const allTeachers = analyticsData?.allTeachers || [];
-  const allStudents = analyticsData?.allStudents || [];
+  // const allStudents = analyticsData?.allStudents || [];
 
   // Fetch data from API
   const fetchData = async () => {
