@@ -43,7 +43,7 @@ const Analytics = () => {
 
   useEffect(() => {
     fetchAnalyticsData();
-  }, [selectedPeriod]);
+  }, [fetchAnalyticsData]);
 
   // Handle period change for user growth chart
   const handlePeriodChange = (period) => {
