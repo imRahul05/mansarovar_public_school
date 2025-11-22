@@ -54,6 +54,11 @@ app.use(cors({
   credentials: true
 }));
 
+// Ignore favicon requests (prevent crash)
+app.get('/', (req, res) => res.status(204).end());
+
+// Ignore favicon requests (prevent crash)
+app.get('/favicon.ico', (req, res) => res.status(204).end());
 
 app.use('/test', (req, res) => {
   res.status(200).json({ message: 'Test route working' });
