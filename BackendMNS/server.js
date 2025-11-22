@@ -23,7 +23,7 @@ connectDB();
 const allowedOrigins = [
   'http://localhost:5173',
   'https://mansarovar-public-school-green.vercel.app',
-'  https://celebrated-tulumba-ad76da.netlify.app'
+  'https://celebrated-tulumba-ad76da.netlify.app'
 ];
 const app = express();
 const PORT = process.env.PORT || 5000;
