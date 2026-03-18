@@ -9,6 +9,14 @@ import Footer from '../../components/layout/Footer';
 import ButtonLoadingSpinner from '../../components/common/ButtonLoadingSpinner';
 import { guestCredentials, guestRoles } from '../../data/guestCredentials';
 import logo from '../../assets/images/Wlogo.png'
+
+const ROLE_REDIRECT_MAP = {
+  superadmin: '/portal/superadmin',
+  admin: '/portal/admin',
+  teacher: '/portal/teacher',
+  student: '/portal/student',
+};
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,23 +34,11 @@ const Login = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (currentUser) {
-      const redirectPath = getRedirectPath(currentUser.role);
+      const from = location.state?.from?.pathname;
+      const redirectPath = from || ROLE_REDIRECT_MAP[currentUser.role] || '/';
       navigate(redirectPath, { replace: true });
     }
-  }, [currentUser, navigate]);
-
-  const getRedirectPath = (role) => {
-    const from = location.state?.from?.pathname;
-    if (from) return from;
-    
-    switch (role) {
-      case 'superadmin': return '/portal/superadmin';
-      case 'admin': return '/portal/admin';
-      case 'teacher': return '/portal/teacher';
-      case 'student': return '/portal/student';
-      default: return '/';
-    }
-  };
+  }, [currentUser, navigate, location]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

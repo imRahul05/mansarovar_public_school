@@ -36,7 +36,7 @@ export default [
   //BackendMNS -- config
 
   {
-    files:['BackendMNS/**/*.js'],
+    files:['BackendMNS/**/*.js', 'server/**/*.js'],
     languageOptions:{
       ecmaVersion:2020,
       globals:globals.node,
