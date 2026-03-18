@@ -1,0 +1,78 @@
+# Dependabot v2 configuration for automated dependency updates.
+# Docs: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+
+updates:
+  # ─── npm (Node.js frontend + backend) ───────────────────────────────────────
+  - package-ecosystem: "npm"
+    # Root of the project where package.json lives
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "06:00"
+      timezone: "Asia/Kolkata"
+
+    # Limit open PRs to reduce noise
+    open-pull-requests-limit: 5
+
+    # Prefix every commit/PR title with "deps" for easy filtering
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+
+    # Auto-apply labels so PRs are easy to triage
+    labels:
+      - "dependencies"
+      - "automated"
+
+    # Group all minor and patch updates into a single PR per daily run to reduce spam.
+    # Major updates are intentionally excluded from the group so they get
+    # individual PRs and require deliberate review.
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+    # Security updates are always created immediately, regardless of schedule,
+    # by Dependabot's built-in security-update mechanism. The setting below
+    # ensures version-update PRs never suppress a pending security update.
+    versioning-strategy: auto
+
+    # Allow patch and minor updates to flow through automatically;
+    # block major bumps so they require an explicit review.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # ─── GitHub Actions ──────────────────────────────────────────────────────────
+  - package-ecosystem: "github-actions"
+    # Actions live in .github/workflows — Dependabot always scans "/" for them
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "06:00"
+      timezone: "Asia/Kolkata"
+
+    open-pull-requests-limit: 3
+
+    commit-message:
+      prefix: "deps(actions)"
+      include: "scope"
+
+    labels:
+      - "dependencies"
+      - "automated"
+
+    # Group all Actions minor/patch updates together
+    groups:
+      actions-minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+    # Ignore major version bumps for Actions as well; review them manually
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
