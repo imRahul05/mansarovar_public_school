@@ -13,12 +13,88 @@ import User from "../models/User.js";
 
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select("-password");
+    const { page, limit, search, role, status, all } = req.query;
+
+    const query = {};
+
+    // Filter by role
+    if (role && role !== "all") {
+      query.role = role;
+    }
+
+    // Filter by status
+    if (status && status !== "all") {
+      if (status === "verified") query.isVerified = true;
+      else if (status === "unverified") query.isVerified = false;
+      else if (status === "active") query.isActive = true;
+      else if (status === "inactive") query.isActive = false;
+    }
+
+    // Filter by search (name, email, customID)
+    if (search && search.trim() !== "") {
+      const searchRegex = new RegExp(search.trim(), "i");
+      query.$or = [
+        { name: searchRegex },
+        { email: searchRegex },
+        { customID: searchRegex },
+      ];
+    }
+
+    // Overall global stats for system summary
+    const [totalAll, totalVerified, totalUnverified, totalActive] =
+      await Promise.all([
+        User.countDocuments(),
+        User.countDocuments({ isVerified: true }),
+        User.countDocuments({ isVerified: false }),
+        User.countDocuments({ isActive: true }),
+      ]);
+
+    const stats = {
+      totalUsers: totalAll,
+      verifiedUsers: totalVerified,
+      unverifiedUsers: totalUnverified,
+      activeUsers: totalActive,
+    };
+
+    const totalFiltered = await User.countDocuments(query);
+
+    // Check if pagination is requested (if page or limit is provided and all !== 'true')
+    const isPaginated =
+      (page !== undefined || limit !== undefined) && all !== "true";
+
+    let users;
+    let pageNum = 1;
+    let limitNum = 10;
+    let totalPages = 1;
+    let hasMore = false;
+
+    if (isPaginated) {
+      pageNum = Math.max(1, parseInt(page, 10) || 1);
+      limitNum = Math.max(1, parseInt(limit, 10) || 10);
+      const skip = (pageNum - 1) * limitNum;
+      totalPages = Math.ceil(totalFiltered / limitNum);
+      hasMore = pageNum < totalPages;
+
+      users = await User.find(query)
+        .select("-password")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum);
+    } else {
+      users = await User.find(query)
+        .select("-password")
+        .sort({ createdAt: -1 });
+    }
 
     res.status(200).json({
       success: true,
       count: users.length,
+      total: totalFiltered,
+      currentPage: isPaginated ? pageNum : 1,
+      totalPages: isPaginated ? totalPages : 1,
+      hasMore: isPaginated ? hasMore : false,
       users,
+      stats,
     });
   } catch (error) {
     console.error("Get users error:", error);

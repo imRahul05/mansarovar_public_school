@@ -17,9 +17,9 @@ api.interceptors.request.use((config) => {
 
 export const superAdminAPI = {
   // Get all users
-  getUsers: async () => {
+  getUsers: async (params = {}) => {
     try {
-      const response = await api.get('/superAdmin/users');
+      const response = await api.get('/superAdmin/users', { params });
       return response.data;
     } catch (error) {
       throw error.response?.data || error;

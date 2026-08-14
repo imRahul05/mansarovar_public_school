@@ -11,13 +11,13 @@ export const guestCredentials = {
     label: "Guest Admin"
   },
   teacher: {
-    email: "priya.teacher@example.com",
-    password: "Teacher123",
+    email: "jhanvidummy@fakeemail.com",
+    password: "GIYj46JpkV_4+c",
     label: "Guest Teacher"
   },
   student: {
-    email: "rahul.student@example.com",
-    password: "Student123",
+    email: "rahull.22.mcav@acharya.ac.in",
+    password: ".^EHI.OE%$g?#2",
     label: "Guest Student"
   }
 };
